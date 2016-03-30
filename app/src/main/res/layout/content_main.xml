@@ -15,5 +15,19 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="Event recommendation app"
+        android:id="@+id/textView" />
+
+    <include layout="@layout/voice_btn_layout"
+        android:visibility="visible"
+        android:id="@+id/include" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listViewRecommendations"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/include" />
+
 </RelativeLayout>

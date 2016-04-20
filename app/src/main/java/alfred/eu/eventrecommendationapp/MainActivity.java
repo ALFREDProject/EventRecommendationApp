@@ -1,5 +1,7 @@
 package alfred.eu.eventrecommendationapp;
 
+import alfred.eu.eventrecommendationapp.web.WebServiceClient;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,7 @@ import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,12 +34,14 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
   private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
   private static final String SELECT_RECOMENDATION_XXX = "SelectRecommendationXXX";
 
-
   // TODO RecommendationManager has changed
 //  private RecommendationManager recommendationManager;
 
   private List<Event> recommendations;
 
+  private String url = "http://alfred.eu:8080/recommendation-engine/services/recommendationServices/";
+
+  private WebServiceClient wbClient;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,20 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
     // and the needed information about the user profile
     // recommendations = list of events
 
+    //TODO get userId
+    String userId = "";
+
+    wbClient = new WebServiceClient();
+    List<Object> result;
+    result = wbClient.doGetRequest(url + "users/" + userId + "/events", HashMap.class);
+    HashMap<Event,Integer> map = (HashMap<Event,Integer>) result.get(0);
+    recommendations = new ArrayList<>();
+    for (Event e : map.keySet()) {
+      recommendations.add(e);
+    }
+    displayRecommendations();
+
+
     // *********** Simulated ****************
     recommendations = getSimulatedEvents();
     Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
@@ -64,8 +83,7 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
     personalAssistant.setOnPersonalAssistantConnectionListener(new PersonalAssistantConnection() {
       @Override
       public void OnConnected() {
-        recommendationManager = new RecommendationManager(personalAssistant.getMessenger());
-        onNewIntent(getIntent());
+       onNewIntent(getIntent());
 
         // Build list of alfred recommendations
 
@@ -124,6 +142,7 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
   public void performEntityRecognizer(String s, Map<String, String> map) {
 
   }
+
 
   /**
    * Display list of recommendations with a listener on each row

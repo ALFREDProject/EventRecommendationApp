@@ -2,7 +2,6 @@ package alfred.eu.eventrecommendationapp.actions;
 
 import android.util.Log;
 
-import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.MainActivity;

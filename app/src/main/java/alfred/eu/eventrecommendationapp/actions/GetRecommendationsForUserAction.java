@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.MainActivity;
-import eu.alfred.api.event.model.Event;
-import eu.alfred.api.event.webservice.RecommendationManager;
 import eu.alfred.api.personalization.model.UserProfile;
 import eu.alfred.api.proxies.interfaces.ICadeCommand;
 import eu.alfred.api.speech.Cade;

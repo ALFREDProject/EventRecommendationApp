@@ -1,5 +1,6 @@
 package alfred.eu.eventrecommendationapp;
 
+import alfred.eu.eventrecommendationapp.web.WebServiceClient;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,21 +37,25 @@ public class MainActivity extends AppActivity {
   //Action
   private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
 
-  private RecommendationManager recommendationManager;
   private List<Event> recommendations;
 
+  private String url = "http://alfred.eu:8080/recommendation-engine/services/recommendationServices/";
 
+  private WebServiceClient wbClient;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    wbClient = new WebServiceClient();
+    List<Object> result;
+    result = wbClient.doGetRequest(url+"users/"+userId+"/events", HashMap.class);
+    Object i = result.get(0);
+    HashMap<Event,Integer> m =(HashMap<Event,Integer> )i;
     Log.d(LOGTAG, "Event recommendations app created");
 
     personalAssistant.setOnPersonalAssistantConnectionListener(new PersonalAssistantConnection() {
       @Override
       public void OnConnected() {
-        recommendationManager = new RecommendationManager(personalAssistant.getMessenger());
-        onNewIntent(getIntent());
+       onNewIntent(getIntent());
 
         // Build list of alfred recommendations
 
@@ -89,6 +95,21 @@ public class MainActivity extends AppActivity {
       default:
         break;
     }
+  }
+
+  @Override
+  public void performWhQuery(String s, Map<String, String> map) {
+
+  }
+
+  @Override
+  public void performValidity(String s, Map<String, String> map) {
+
+  }
+
+  @Override
+  public void performEntityRecognizer(String s, Map<String, String> map) {
+
   }
 
   public void setRecommendations(List<Event> recommendations) {

@@ -20,6 +20,8 @@ import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.SelectRecommendationAction;
 
+import eu.alfred.api.PersonalAssistantConnection;
+import eu.alfred.api.personalization.model.UserProfile;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.Venue;
 import eu.alfred.api.proxies.interfaces.ICadeCommand;
@@ -52,44 +54,32 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
     // View contents
     setContentView(alfred.eu.eventrecommendationapp.R.layout.activity_main);
 
-    // INTEGRATION WITH ALFRED RECOMMENDATIONS SERVICES
-
-    // Some help here to get the recomendations of the user
-    // and the needed information about the user profile
-    // recommendations = list of events
-
-    //TODO get userId
-    String userId = "";
-
-    wbClient = new WebServiceClient();
-    List<Object> result;
-    result = wbClient.doGetRequest(url + "users/" + userId + "/events", HashMap.class);
-    HashMap<Event,Integer> map = (HashMap<Event,Integer>) result.get(0);
-    recommendations = new ArrayList<>();
-    for (Event e : map.keySet()) {
-      recommendations.add(e);
-    }
-    displayRecommendations();
-
-
-    // *********** Simulated ****************
-    recommendations = getSimulatedEvents();
-    Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
-    displayRecommendations();
-    // **************************************
-
     // *********** Old way, RecommendationManager is not accesible ****************
-    /*
     personalAssistant.setOnPersonalAssistantConnectionListener(new PersonalAssistantConnection() {
       @Override
       public void OnConnected() {
-       onNewIntent(getIntent());
+        // INTEGRATION WITH ALFRED PROFILE and RECOMMENDATIONS SERVICES
 
-        // Build list of alfred recommendations
+        // Some help here to get the recomendations of the user
+        // and the needed information about the user profile
+        // recommendations = list of events
 
+        //TODO get userId
         // get userProfile ?
-//        UserProfile userProfile = new UserProfile();
-//        recommendationManager.getEventRecommendationForUser(userProfile);
+        UserProfile userProfile = new UserProfile();
+        String userId = userProfile.getId();
+
+        //Maybe an AsyncTask for this...
+        wbClient = new WebServiceClient();
+        List<Object> result;
+        result = wbClient.doGetRequest(url + "users/" + userId + "/events", HashMap.class);
+        HashMap<Event,Integer> map = (HashMap<Event,Integer>) result.get(0);
+        recommendations = new ArrayList<>();
+        for (Event e : map.keySet()) {
+          recommendations.add(e);
+        }
+        onNewIntent(getIntent());
+
         // *********** Simulated ****************
         recommendations = getSimulatedEvents();
         Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
@@ -103,7 +93,6 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
         // Do some cleanup stuff
       }
     });
-    */
 
     // PA Buttons
     circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);

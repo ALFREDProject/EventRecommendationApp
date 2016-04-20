@@ -10,4 +10,49 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="alfred.eu.eventrecommendationapp.SomeoneIsGoingActivity">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageViewEventSomeoneIsGoing"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/event_ico"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/imageViewEventSomeoneIsGoing"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="50dp"
+        android:onClick="onClickDetails">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewWho"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_margin="5dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewWhen"
+            android:layout_below="@+id/textViewWho"
+            android:layout_alignParentStart="true"
+            android:layout_margin="5dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/join_or_details"
+            android:id="@+id/textViewDetails"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/AlfredPastelBlue"/>
+    </RelativeLayout>
+
+    <include layout="@layout/voice_btn_layout"
+             android:visibility="visible"
+             android:id="@+id/include" />
 </RelativeLayout>

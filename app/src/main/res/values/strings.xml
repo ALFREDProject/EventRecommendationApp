@@ -6,4 +6,9 @@
     <string name="end">End</string>
     <string name="go">Go</string>
     <string name="DontGo">Don\'t go</string>
+    <string name="location">Location</string>
+    <string name="friends_participating">Friends participating</string>
+    <string name="mobility">Mobility</string>
+    <string name="description">Description</string>
+    <string name="join_or_details">Do you want to join or to see details?</string>
 </resources>

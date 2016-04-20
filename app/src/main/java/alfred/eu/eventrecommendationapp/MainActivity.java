@@ -1,41 +1,40 @@
 package alfred.eu.eventrecommendationapp;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
-import eu.alfred.api.PersonalAssistantConnection;
-import eu.alfred.api.event.model.Event;
-import eu.alfred.api.event.webservice.RecommendationManager;
-import eu.alfred.api.personalization.model.UserProfile;
+import alfred.eu.eventrecommendationapp.actions.SelectRecommendationAction;
+
+import eu.alfred.api.personalization.model.eventrecommendation.Event;
+import eu.alfred.api.personalization.model.eventrecommendation.Venue;
+import eu.alfred.api.proxies.interfaces.ICadeCommand;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
-public class MainActivity extends AppActivity {
+public class MainActivity extends AppActivity  implements ICadeCommand {
 
   private static final String LOGTAG = MainActivity.class.getSimpleName();
 
   //Action
   private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
+  private static final String SELECT_RECOMENDATION_XXX = "SelectRecommendationXXX";
 
-  private RecommendationManager recommendationManager;
+
+  // TODO RecommendationManager has changed
+//  private RecommendationManager recommendationManager;
+
   private List<Event> recommendations;
 
 
@@ -45,6 +44,23 @@ public class MainActivity extends AppActivity {
 
     Log.d(LOGTAG, "Event recommendations app created");
 
+    // View contents
+    setContentView(alfred.eu.eventrecommendationapp.R.layout.activity_main);
+
+    // INTEGRATION WITH ALFRED RECOMMENDATIONS SERVICES
+
+    // Some help here to get the recomendations of the user
+    // and the needed information about the user profile
+    // recommendations = list of events
+
+    // *********** Simulated ****************
+    recommendations = getSimulatedEvents();
+    Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
+    displayRecommendations();
+    // **************************************
+
+    // *********** Old way, RecommendationManager is not accesible ****************
+    /*
     personalAssistant.setOnPersonalAssistantConnectionListener(new PersonalAssistantConnection() {
       @Override
       public void OnConnected() {
@@ -53,7 +69,7 @@ public class MainActivity extends AppActivity {
 
         // Build list of alfred recommendations
 
-        //TODO get userProfile ?
+        // get userProfile ?
 //        UserProfile userProfile = new UserProfile();
 //        recommendationManager.getEventRecommendationForUser(userProfile);
         // *********** Simulated ****************
@@ -69,9 +85,7 @@ public class MainActivity extends AppActivity {
         // Do some cleanup stuff
       }
     });
-
-    // View contents
-    setContentView(alfred.eu.eventrecommendationapp.R.layout.activity_main);
+    */
 
     // PA Buttons
     circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
@@ -82,19 +96,38 @@ public class MainActivity extends AppActivity {
   public void performAction(String command, Map<String, String> map) {
     Log.d(LOGTAG, "Action performed!");
     switch (command) {
-      case (GET_RECOMMENDATIONS_FOR_USER):
-        GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade, recommendationManager);
-        cta.performAction(command, map);
+//      case (GET_RECOMMENDATIONS_FOR_USER):
+//        GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade, recommendationManager);
+//        cta.performAction(command, map);
+//        break;
+      case (SELECT_RECOMENDATION_XXX):
+        // TODO in some way the title of the event must go to CADE, and the event
+        SelectRecommendationAction sra = new SelectRecommendationAction(this, cade, recommendations);
+        sra.performAction(command, map);
         break;
       default:
         break;
     }
   }
 
-  public void setRecommendations(List<Event> recommendations) {
-    this.recommendations = recommendations;
+  @Override
+  public void performWhQuery(String s, Map<String, String> map) {
+
   }
 
+  @Override
+  public void performValidity(String s, Map<String, String> map) {
+
+  }
+
+  @Override
+  public void performEntityRecognizer(String s, Map<String, String> map) {
+
+  }
+
+  /**
+   * Display list of recommendations with a listener on each row
+   */
   public void displayRecommendations() {
     ListView listViewRecommendations = (ListView) findViewById(R.id.listViewRecommendations);
     listViewRecommendations.setAdapter(new ListAdapter(this, R.layout.every_item_recommendations_list, recommendations) {
@@ -105,16 +138,17 @@ public class MainActivity extends AppActivity {
         TextView textViewWhen = (TextView) view.findViewById(R.id.textViewWhen);
         TextView textViewFriendsGoing = (TextView) view.findViewById(R.id.textViewFriendsGoing);
 
-        //TODO fill recommendations display
-        textViewTitle.setText("TITLE: " + event.getTitle());
+        //Fill recommendations display
+        textViewTitle.setText(event.getTitle());
+        textViewWhen.setText(DateFormat.getDateTimeInstance().format(event.getStart_date()));
+        //Fill which friends are going
+        textViewFriendsGoing.setText(event.getParticipants().size() + " " + getResources().getString(R.string.friends_participating));
 
-        //TODO setOnClickListener
         view.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            //TODO Show recommendation
             Intent recommendationDetails = new Intent(MainActivity.this, EventDetailsActivity.class);
-            recommendationDetails.putExtra("event", (new Gson()).toJson(event));
+            recommendationDetails.putExtra(EventDetailsActivity.PARAM_EVENT_DETAILS, (new Gson()).toJson(event));
             startActivity(recommendationDetails);
           }
         });
@@ -125,38 +159,51 @@ public class MainActivity extends AppActivity {
 
 
   /**
-   * Receives the notification
-   * TODO: here it is supposed there is a JSON in the intent with the events
+   * Only for testing with fake data
+   * @return
    */
-  private void setBroadcast() {
-    //TODO set filter ?
-    IntentFilter filter = new IntentFilter();
-    LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-  }
-
-  private BroadcastReceiver receiver = new BroadcastReceiver() {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      Type responseType = new TypeToken<Event>(){}.getType();
-//      Event event = (new Gson()).fromJson(intent.getStringExtra("event"), responseType);
-//      String userId = intent.getStringExtra("userId");
-      Intent someoneIsGoingIntent = new Intent(MainActivity.this, SomeoneIsGoingActivity.class);
-      someoneIsGoingIntent.putExtra("event", intent.getStringExtra("event"));
-      someoneIsGoingIntent.putExtra("userId", intent.getStringExtra("userId"));
-      startActivity(someoneIsGoingIntent);
-    }
-  };
-
   private List<Event> getSimulatedEvents() {
     List<Event> result = new ArrayList<>();
-    Event event = new Event();
-    event.setTitle("Recommendation 1");
-    result.add(event);
+    Event event;
+    Venue venue = new Venue();
+    venue.setAddress("Main street, Amsterdam");
+    venue.setName("People centre");
+    List<String> participants = new ArrayList<>();
+    participants.add("Johan");
+    participants.add("Hasibur");
+    participants.add("Margarita");
+    List<String> accesibilities = new ArrayList<>();
+    accesibilities.add("Foot");
+    accesibilities.add("Wheelchair");
+
     event = new Event();
-    event.setTitle("Recommendation 2");
+    event.setStart_date(new Date());
+    event.setEnd_date(new Date((new Date()).getTime() + 360000));
+    event.setParticipants(participants);
+    event.setDescription("Learn about the origin and history of tai chi, a martial art designed for self-defense, and discover the health benefits");
+    event.setVenue(venue);
+    event.setAccessibility(accesibilities);
+    event.setTitle("Tai chi");
     result.add(event);
+
     event = new Event();
-    event.setTitle("Recommendation 3");
+    event.setStart_date(new Date());
+    event.setEnd_date(new Date((new Date()).getTime() + 360000));
+    event.setParticipants(participants);
+    event.setDescription("Aquagym courses are given under the supervision of a lifeguard");
+    event.setVenue(venue);
+    event.setAccessibility(accesibilities);
+    event.setTitle("Aquagym");
+    result.add(event);
+
+    event = new Event();
+    event.setStart_date(new Date());
+    event.setEnd_date(new Date((new Date()).getTime() + 360000));
+    event.setParticipants(participants);
+    event.setDescription("Regualar walking, like most aerobic activities, is good for you because cardio-vascular exercise strengthens the heart and lungs, increasing overall fitness");
+    event.setVenue(venue);
+    event.setAccessibility(accesibilities);
+    event.setTitle("Walking");
     result.add(event);
     return result;
   }

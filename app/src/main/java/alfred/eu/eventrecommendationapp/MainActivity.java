@@ -1,11 +1,21 @@
 package alfred.eu.eventrecommendationapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +24,7 @@ import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import eu.alfred.api.PersonalAssistantConnection;
 import eu.alfred.api.event.model.Event;
 import eu.alfred.api.event.webservice.RecommendationManager;
+import eu.alfred.api.personalization.model.UserProfile;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
@@ -39,6 +50,18 @@ public class MainActivity extends AppActivity {
       public void OnConnected() {
         recommendationManager = new RecommendationManager(personalAssistant.getMessenger());
         onNewIntent(getIntent());
+
+        // Build list of alfred recommendations
+
+        //TODO get userProfile ?
+//        UserProfile userProfile = new UserProfile();
+//        recommendationManager.getEventRecommendationForUser(userProfile);
+        // *********** Simulated ****************
+        recommendations = getSimulatedEvents();
+        Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
+        // **************************************
+
+        displayRecommendations();
       }
 
       @Override
@@ -49,14 +72,6 @@ public class MainActivity extends AppActivity {
 
     // View contents
     setContentView(alfred.eu.eventrecommendationapp.R.layout.activity_main);
-
-    // Build list of alfred recommendations
-
-    // *********** Simulated ****************
-    recommendations = getSimulatedEvents();
-    displayRecommendations();
-    Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
-    // **************************************
 
     // PA Buttons
     circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
@@ -94,10 +109,43 @@ public class MainActivity extends AppActivity {
         textViewTitle.setText("TITLE: " + event.getTitle());
 
         //TODO setOnClickListener
+        view.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            //TODO Show recommendation
+            Intent recommendationDetails = new Intent(MainActivity.this, EventDetailsActivity.class);
+            recommendationDetails.putExtra("event", (new Gson()).toJson(event));
+            startActivity(recommendationDetails);
+          }
+        });
 
       }
     });
   }
+
+
+  /**
+   * Receives the notification
+   * TODO: here it is supposed there is a JSON in the intent with the events
+   */
+  private void setBroadcast() {
+    //TODO set filter ?
+    IntentFilter filter = new IntentFilter();
+    LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+  }
+
+  private BroadcastReceiver receiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      Type responseType = new TypeToken<Event>(){}.getType();
+//      Event event = (new Gson()).fromJson(intent.getStringExtra("event"), responseType);
+//      String userId = intent.getStringExtra("userId");
+      Intent someoneIsGoingIntent = new Intent(MainActivity.this, SomeoneIsGoingActivity.class);
+      someoneIsGoingIntent.putExtra("event", intent.getStringExtra("event"));
+      someoneIsGoingIntent.putExtra("userId", intent.getStringExtra("userId"));
+      startActivity(someoneIsGoingIntent);
+    }
+  };
 
   private List<Event> getSimulatedEvents() {
     List<Event> result = new ArrayList<>();

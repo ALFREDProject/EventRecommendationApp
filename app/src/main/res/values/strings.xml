@@ -7,8 +7,16 @@
     <string name="go">Go</string>
     <string name="DontGo">Don\'t go</string>
     <string name="location">Location</string>
-    <string name="friends_participating">Friends participating</string>
     <string name="mobility">Mobility</string>
     <string name="description">Description</string>
     <string name="join_or_details">Do you want to join or to see details?</string>
+    <string name="friends_participating">Friends participating</string>
+
+    <string name="reason_friends_participating">Friends participating</string>
+    <string name="reason_based_on_tags">Based on tags</string>
+    <string name="reason_history">Based on your history</string>
+    <string name="reason_similar_participants">Similar participants</string>
+    <string name="reason_interests">According to your interests</string>
+    <string name="reason_distance">Not very far</string>
+
 </resources>

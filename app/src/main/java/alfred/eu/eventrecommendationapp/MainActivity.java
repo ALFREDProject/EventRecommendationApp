@@ -1,5 +1,7 @@
 package alfred.eu.eventrecommendationapp;
 
+import alfred.eu.eventrecommendationapp.recommendationengine.model.EventRecommendationResponse;
+import alfred.eu.eventrecommendationapp.recommendationengine.model.RecommendationReason;
 import alfred.eu.eventrecommendationapp.web.WebServiceClient;
 
 import android.content.Intent;
@@ -14,7 +16,9 @@ import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +43,8 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
   // TODO RecommendationManager has changed
 //  private RecommendationManager recommendationManager;
 
-  private List<Event> recommendations;
+  //private List<Event> recommendations;
+  private List<EventRecommendationResponse> recommendationsWithMoreData;
 
   private String url = "http://alfred.eu:8080/recommendation-engine/services/recommendationServices/";
 
@@ -73,16 +78,13 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
         wbClient = new WebServiceClient();
         List<Object> result;
         result = wbClient.doGetRequest(url + "users/" + userId + "/events", HashMap.class);
-        HashMap<Event,Integer> map = (HashMap<Event,Integer>) result.get(0);
-        recommendations = new ArrayList<>();
-        for (Event e : map.keySet()) {
-          recommendations.add(e);
-        }
+        List<EventRecommendationResponse> recommendationsWithMoreData = (List<EventRecommendationResponse>) result.get(0);
+
         onNewIntent(getIntent());
 
         // *********** Simulated ****************
-        recommendations = getSimulatedEvents();
-        Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendations.size());
+        recommendationsWithMoreData = getSimulatedEvents();
+        Log.d(LOGTAG, "Alfred simulated recommendations: " + recommendationsWithMoreData.size());
         // **************************************
 
         displayRecommendations();
@@ -109,7 +111,7 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
 //        break;
       case (SELECT_RECOMENDATION_XXX):
         // TODO in some way the title of the event must go to CADE, and the event
-        SelectRecommendationAction sra = new SelectRecommendationAction(this, cade, recommendations);
+        SelectRecommendationAction sra = new SelectRecommendationAction(this, cade, recommendationsWithMoreData);
         sra.performAction(command, map);
         break;
       default:
@@ -138,29 +140,56 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
    */
   public void displayRecommendations() {
     ListView listViewRecommendations = (ListView) findViewById(R.id.listViewRecommendations);
-    listViewRecommendations.setAdapter(new ListAdapter(this, R.layout.every_item_recommendations_list, recommendations) {
+    listViewRecommendations.setAdapter(new ListAdapter(this, R.layout.every_item_recommendations_list, recommendationsWithMoreData) {
       @Override
       public void onEntry(Object entry, View view) {
-        final Event event = (Event) entry;
+        final EventRecommendationResponse eventRecommendationResponse = (EventRecommendationResponse) entry;
         TextView textViewTitle = (TextView) view.findViewById(R.id.textViewTitle);
         TextView textViewWhen = (TextView) view.findViewById(R.id.textViewWhen);
-        TextView textViewFriendsGoing = (TextView) view.findViewById(R.id.textViewFriendsGoing);
+        TextView textViewReason = (TextView) view.findViewById(R.id.textViewReason);
 
         //Fill recommendations display
-        textViewTitle.setText(event.getTitle());
-        textViewWhen.setText(DateFormat.getDateTimeInstance().format(event.getStart_date()));
-        //Fill which friends are going
-        textViewFriendsGoing.setText(event.getParticipants().size() + " " + getResources().getString(R.string.friends_participating));
+        textViewTitle.setText(eventRecommendationResponse.getEvent().getTitle());
+        textViewWhen.setText(DateFormat.getDateTimeInstance().format(eventRecommendationResponse.getEvent().getStart_date()));
+
+        String reason = "";
+        for (RecommendationReason rr : eventRecommendationResponse.getReasons()) {
+          if (!"".equalsIgnoreCase(reason)) {
+            reason = reason + "\n";
+          }
+          /*  FRIENDS_GOING, TAGS, HISTORY, INTERESTS, SIMILAR_PARTICIPANTS, DISTANCE   */
+          switch (rr) {
+            case FRIENDS_GOING:
+              reason = reason + eventRecommendationResponse.getEvent().getParticipants().size() + " " + getResources().getString(R.string.reason_friends_participating);
+              break;
+            case TAGS:
+              reason = reason + getResources().getString(R.string.reason_based_on_tags);
+              break;
+            case HISTORY:
+              reason = reason + getResources().getString(R.string.reason_history);
+              break;
+            case INTERESTS:
+              reason = reason + getResources().getString(R.string.reason_interests);
+              break;
+            case SIMILAR_PARTICIPANTS:
+              reason = reason + getResources().getString(R.string.reason_similar_participants);
+              break;
+            case DISTANCE:
+              reason = reason + getResources().getString(R.string.reason_distance);
+              break;
+            default:
+          }
+        }
+        textViewReason.setText(reason);
 
         view.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
             Intent recommendationDetails = new Intent(MainActivity.this, EventDetailsActivity.class);
-            recommendationDetails.putExtra(EventDetailsActivity.PARAM_EVENT_DETAILS, (new Gson()).toJson(event));
+            recommendationDetails.putExtra(EventDetailsActivity.PARAM_EVENT_DETAILS, (new Gson()).toJson(eventRecommendationResponse.getEvent()));
             startActivity(recommendationDetails);
           }
         });
-
       }
     });
   }
@@ -170,9 +199,12 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
    * Only for testing with fake data
    * @return
    */
-  private List<Event> getSimulatedEvents() {
-    List<Event> result = new ArrayList<>();
+  private List<EventRecommendationResponse> getSimulatedEvents() {
+    List<EventRecommendationResponse> result = new ArrayList<>();
+
     Event event;
+    EventRecommendationResponse err;
+    EnumSet<RecommendationReason> reasons;
     Venue venue = new Venue();
     venue.setAddress("Main street, Amsterdam");
     venue.setName("People centre");
@@ -192,7 +224,8 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
     event.setVenue(venue);
     event.setAccessibility(accesibilities);
     event.setTitle("Tai chi");
-    result.add(event);
+    err = new EventRecommendationResponse(event, EnumSet.of(RecommendationReason.DISTANCE, RecommendationReason.HISTORY), 1);
+    result.add(err);
 
     event = new Event();
     event.setStart_date(new Date());
@@ -202,7 +235,8 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
     event.setVenue(venue);
     event.setAccessibility(accesibilities);
     event.setTitle("Aquagym");
-    result.add(event);
+    err = new EventRecommendationResponse(event, EnumSet.of(RecommendationReason.TAGS, RecommendationReason.HISTORY), 1);
+    result.add(err);
 
     event = new Event();
     event.setStart_date(new Date());
@@ -212,7 +246,8 @@ public class MainActivity extends AppActivity  implements ICadeCommand {
     event.setVenue(venue);
     event.setAccessibility(accesibilities);
     event.setTitle("Walking");
-    result.add(event);
+    err = new EventRecommendationResponse(event, EnumSet.of(RecommendationReason.INTERESTS), 1);
+    result.add(err);
     return result;
   }
 }

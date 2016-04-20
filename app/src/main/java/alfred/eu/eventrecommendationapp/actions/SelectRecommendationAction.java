@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.EventDetailsActivity;
+import alfred.eu.eventrecommendationapp.recommendationengine.model.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.proxies.interfaces.ICadeCommand;
 import eu.alfred.api.speech.Cade;
@@ -22,13 +23,13 @@ public class SelectRecommendationAction implements ICadeCommand {
 
     private AppActivity parent;
     private Cade cade;
-    private List<Event> recommendations;
+    private List<EventRecommendationResponse> recommendationsWithMoreData;
 
 
-    public SelectRecommendationAction(AppActivity parent, Cade cade, List<Event> recommendations) {
+    public SelectRecommendationAction(AppActivity parent, Cade cade, List<EventRecommendationResponse> recommendations) {
         this.parent = parent;
         this.cade = cade;
-        this.recommendations = recommendations;
+        this.recommendationsWithMoreData = recommendationsWithMoreData;
     }
 
     @Override
@@ -38,9 +39,9 @@ public class SelectRecommendationAction implements ICadeCommand {
         //TODO which is the one selected?
         //Assuming the title comes from a parameter in the map
         Event event = new Event();
-        for (Event e : recommendations) {
-            if (e.getTitle().equalsIgnoreCase(map.get(EVENTTITLE_KEY))) {
-                event = e;
+        for (EventRecommendationResponse err : recommendationsWithMoreData) {
+            if (err.getEvent().getTitle().equalsIgnoreCase(map.get(EVENTTITLE_KEY))) {
+                event = err.getEvent();
                 break;
             }
         }

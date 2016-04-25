@@ -1,5 +1,6 @@
 package alfred.eu.eventrecommendationapp.actions;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.Map;
@@ -29,4 +30,25 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
         recommendationManager.getEventRecommendationForUser(hereIsSomethingMissing);
         throw new UnsupportedOperationException("Here is some logic missing, but it should return data ");
     }
+
+    private void reload() {
+
+    }
+
+
+    private class GetRecommendationsAsync extends AsyncTask<Void, Void, Void> {
+        public Void doInBackground(Void... params) {
+            for (long i=0; i < 100000; i++) {
+                System.out.println(i);
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            reload();
+        }
+
+
+    }
+
 }

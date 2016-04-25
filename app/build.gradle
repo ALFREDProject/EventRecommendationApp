@@ -24,8 +24,11 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
-
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.7.3'
+    compile 'com.sun.jersey:jersey-client:1.9.1'
     compile 'eu.alfred.personalassistant.sharedlibrary:PersonalAssistantShared-debug@aar'
+    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }
 
 repositories{

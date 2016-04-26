@@ -18,9 +18,9 @@ public class OnItemClickListenerListViewItem implements OnItemClickListener {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        Context context = view.getContext();
+   /*     Context context = view.getContext();
 
-        TextView textViewItem = ((TextView) view.findViewById(R.id.textViewItem));
+        TextView textViewItem = ((TextView) view.findViewById(R.id.txt_eventTitle));
 
         // get the clicked item name
         String listItemText = textViewItem.getText().toString();
@@ -31,7 +31,7 @@ public class OnItemClickListenerListViewItem implements OnItemClickListener {
         // just toast it
         Toast.makeText(context, "Item: " + listItemText + ", Item ID: " + listItemId, Toast.LENGTH_SHORT).show();
 
-        ((MainActivity) context).alertDialogStores.cancel();
+        ((MainActivity) context).alertDialogStores.cancel();*/
 
     }
 

@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:orientation="vertical">
+    <LinearLayout
+        android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/imageView" android:src="@drawable/recommendation_ico" android:layout_margin="5dp" />
+        <LinearLayout
+            android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <!-- StartTime -->
+            <LinearLayout
+                android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView
+                    style="@style/DetailsHeadding" android:id="@+id/txt_startTimeLabel"
+                    android:text="@string/startTimeLabel" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textSize="15dp" />
+                <TextView android:id="@+id/txt_startTime" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+            </LinearLayout>
+            <!-- EndTime -->
+            <LinearLayout
+                android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView
+                    style="@style/DetailsHeadding"
+                    android:id="@+id/txt_endTimeLabel" android:text="@string/endTimeLabel" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textSize="15dp" />
+                <TextView android:id="@+id/txt_endTime" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView style="@style/DetailsHeadding"
+                    android:id="@+id/txt_eventTitle" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textSize="15dp" />
+                <TextView android:id="@+id/txt_time" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+            </LinearLayout>
+            <TextView android:id="@+id/txt_basedOn" android:layout_width="match_parent" android:layout_height="wrap_content"  android:textSize="15dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:onClick="goHandler"  android:text="Go"/>
+        <Button
+            android:layout_width="wrap_content" android:onClick="dontGoHandler"
+            android:layout_height="wrap_content"  android:text="Don't go"/>
+    </LinearLayout>
+
+    <!-- Location-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView style="@style/DetailsHeadding" android:id="@+id/txt_locationLabel"
+            android:layout_width="wrap_content" android:text="@string/locationLabel"
+            android:layout_height="wrap_content" android:textSize="15dp" />
+        <TextView android:id="@+id/txt_location" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+    </LinearLayout>
+    <!-- Description-->
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <TextView style="@style/DetailsHeadding" android:id="@+id/txt_descriptionLabel" android:layout_width="wrap_content"
+            android:text="@string/descriptionLabel"
+            android:layout_height="wrap_content" android:textSize="15dp" />
+        <TextView android:id="@+id/txt_description" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+    </LinearLayout>
+</LinearLayout>

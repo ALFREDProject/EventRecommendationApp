@@ -1,8 +1,12 @@
 package alfred.eu.eventrecommendationapp;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.appindexing.Action;
@@ -32,31 +36,18 @@ public class MainActivity extends AppActivity {
     public AlertDialog alertDialogStores;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        /*super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();*/
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         try {
             showPopUp();
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        // a button to show the pop up with a list view
-
-
-      //  findViewById(R.id.buttonShowPopUp).setOnClickListener(handler);
-
-
     }
 
     private Event getEvent() throws ParseException {
 
-        SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy");
+        SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Event e = new Event();
         String title = "Dummyevent";
         e.setDescription("Description: "+title);
@@ -64,8 +55,11 @@ public class MainActivity extends AppActivity {
         e.setCapacity("10");
         e.setTitle(title);
         e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
-        Date d = sd.parse("26.04.2016");
+        Date d = sd.parse("26.04.2016 13:37");
         e.setStart_date(d);
+        e.setEnd_date(sd.parse("26.04.2016 17:37"));
+        e.setLocale("Ganderkesee indoor swimming");
+        e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
         return  e;
     }
 
@@ -85,7 +79,6 @@ public class MainActivity extends AppActivity {
         resp[7] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),8);
 
         ArrayAdapterItem adapter = null;
-        // our adapter instance
         try
         {
             adapter = new ArrayAdapterItem(this, R.layout.list_view_row_item, resp);
@@ -96,8 +89,22 @@ public class MainActivity extends AppActivity {
         }
         ListView list = (ListView)findViewById(R.id.lwitem);
         list.setAdapter(adapter);
-
-    ;}
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+                EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
+                Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
+                i.putExtra("eventTitle",entry.getEvent().getTitle());
+                i.putExtra("eventStartDate",entry.getEvent().getStart_date());
+                i.putExtra("eventEndDate",entry.getEvent().getEnd_date());
+                i.putExtra("eventLocale",entry.getEvent().getLocale());
+                i.putExtra("eventDescription",entry.getEvent().getDescription());
+                i.putExtra("reasons",entry.getReasons());
+                i.putExtra("weight",entry.getWeight());
+                startActivity(i);
+            }
+        });
+    }
 
     @Override
     public void performAction(String command, Map<String, String> map) {
@@ -130,9 +137,9 @@ public class MainActivity extends AppActivity {
 
     @Override
     public void onStop() {
-        super.onStop();
+       super.onStop();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
+      /*  // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
@@ -145,6 +152,6 @@ public class MainActivity extends AppActivity {
                 Uri.parse("android-app://alfred.eu.eventrecommendationapp/http/host/path")
         );
         AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
+        client.disconnect();*/
     }
 }

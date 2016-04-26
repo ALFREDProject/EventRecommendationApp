@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">EventRecommendationApp</string>
     <string name="action_settings">Settings</string>
+    <string name="startTimeLabel"><u>Start: </u></string>
+    <string name="endTimeLabel"><u>End: </u></string>
+    <string name="locationLabel"><u>Location: </u></string>
+    <string name="descriptionLabel"><u>Description: </u></string>
+
 </resources>

@@ -13,6 +13,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import alfred.eu.eventrecommendationapp.web.Event;
 import alfred.eu.eventrecommendationapp.web.EventRecommendationResponse;
 import alfred.eu.eventrecommendationapp.web.RecommendationReason;
+import alfred.eu.eventrecommendationapp.web.WebServiceClient;
 import eu.alfred.ui.AppActivity;
 
 public class MainActivity extends AppActivity {
@@ -54,6 +56,7 @@ public class MainActivity extends AppActivity {
         e.setCreated(new Date());
         e.setCapacity("10");
         e.setTitle(title);
+        e.setEventID("pouq3po04u30948");
         e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
         Date d = sd.parse("26.04.2016 13:37");
         e.setStart_date(d);
@@ -62,7 +65,7 @@ public class MainActivity extends AppActivity {
         e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
         return  e;
     }
-
+    private String url = "http://alfred.eu:8080/recommendation-engine/services/recommendationServices/";
     public void showPopUp() throws ParseException {
 
         // add your items, this can be done programatically
@@ -77,6 +80,9 @@ public class MainActivity extends AppActivity {
         resp[5] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),6);
         resp[6] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),7);
         resp[7] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),8);
+        WebServiceClient wbClient = new WebServiceClient();
+        String userId= "571494fbe4b0d25de0692e40";
+        List<Object>  result= wbClient.doGetRequest(url+"users/"+userId+"/events", List.class);
 
         ArrayAdapterItem adapter = null;
         try
@@ -94,11 +100,13 @@ public class MainActivity extends AppActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
                 EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
                 Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
+                DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
                 i.putExtra("eventTitle",entry.getEvent().getTitle());
-                i.putExtra("eventStartDate",entry.getEvent().getStart_date());
-                i.putExtra("eventEndDate",entry.getEvent().getEnd_date());
+                i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
+                i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
                 i.putExtra("eventLocale",entry.getEvent().getLocale());
                 i.putExtra("eventDescription",entry.getEvent().getDescription());
+                i.putExtra("eventId",entry.getEvent().getEventID());
                 i.putExtra("reasons",entry.getReasons());
                 i.putExtra("weight",entry.getWeight());
                 startActivity(i);

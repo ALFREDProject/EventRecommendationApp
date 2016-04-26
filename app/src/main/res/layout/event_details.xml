@@ -49,9 +49,9 @@
         android:orientation="horizontal">
         <Button
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:onClick="goHandler"  android:text="Go"/>
+            android:id="@+id/goButton" android:text="Go"/>
         <Button
-            android:layout_width="wrap_content" android:onClick="dontGoHandler"
+            android:layout_width="wrap_content" android:id="@+id/dontGoButton"
             android:layout_height="wrap_content"  android:text="Don't go"/>
     </LinearLayout>
 

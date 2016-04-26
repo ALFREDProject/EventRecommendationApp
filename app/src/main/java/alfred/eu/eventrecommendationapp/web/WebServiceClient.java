@@ -6,16 +6,16 @@ package alfred.eu.eventrecommendationapp.web;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-/*import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;*/
+import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.util.List;
 
 
 public class WebServiceClient {
 
- /*   public List<Object> doGetRequest(String urlToCall, Class entityClass) {
+    public List<Object> doGetRequest(String urlToCall, Class entityClass) {
         List<Object> resultList = null;
 
         try {
@@ -43,7 +43,7 @@ public class WebServiceClient {
         }
 
         return resultList;
-    }
+    }/*
 
     public Boolean doGetRequest(String urlToCall) {
         Boolean result = false;

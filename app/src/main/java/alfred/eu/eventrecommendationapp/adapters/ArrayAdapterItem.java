@@ -8,13 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 
 import alfred.eu.eventrecommendationapp.R;
-import alfred.eu.eventrecommendationapp.web.EventRecommendationResponse;
-import alfred.eu.eventrecommendationapp.web.RecommendationReason;
+import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
+import eu.alfred.api.personalization.model.eventrecommendation.RecommendationReason;
+
 
 /**
  * Created by thardes on 25/04/2016.

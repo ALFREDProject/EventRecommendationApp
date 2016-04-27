@@ -1,13 +1,11 @@
 package alfred.eu.eventrecommendationapp.actions;
 
-import android.os.AsyncTask;
-import android.util.Log;
+import android.os.Messenger;
 
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.MainActivity;
-import eu.alfred.api.event.webservice.RecommendationManager;
-import eu.alfred.api.personalization.model.UserProfile;
+import eu.alfred.api.personalization.webservice.eventrecommendation.EventrecommendationManager;
 import eu.alfred.api.proxies.interfaces.ICadeCommand;
 import eu.alfred.api.speech.Cade;
 
@@ -17,13 +15,31 @@ import eu.alfred.api.speech.Cade;
 public class GetRecommendationsForUserAction implements ICadeCommand {
     MainActivity main;
     Cade cade;
-    RecommendationManager recommendationManager;
-    public GetRecommendationsForUserAction(MainActivity main, Cade cade, RecommendationManager recommendationManager) {
+    public GetRecommendationsForUserAction(MainActivity main, Cade cade) {
         this.main = main;
         this.cade = cade;
-        this.recommendationManager = recommendationManager;
     }
+
     @Override
+    public void performAction(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performWhQuery(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performValidity(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performEntityRecognizer(String s, Map<String, String> map) {
+
+    }
+   /* @Override
     public void performAction(String s, Map<String, String> map) {
         Log.i("Recommendations-Log", map.get("Recommendations_for_users"));
         UserProfile hereIsSomethingMissing = null;
@@ -50,5 +66,5 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
 
 
     }
-
+*/
 }

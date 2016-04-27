@@ -1,45 +1,48 @@
 package alfred.eu.eventrecommendationapp;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
-import alfred.eu.eventrecommendationapp.web.Event;
-import alfred.eu.eventrecommendationapp.web.EventRecommendationResponse;
-import alfred.eu.eventrecommendationapp.web.RecommendationReason;
-import alfred.eu.eventrecommendationapp.web.WebServiceClient;
+import eu.alfred.api.personalization.model.eventrecommendation.*;
 import eu.alfred.ui.AppActivity;
+import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
-    final static String HELP_TO_POSTURE_ACTION = "HowToPostureAction";
 
-    private GoogleApiClient client;
-    public AlertDialog alertDialogStores;
+    private SharedPreferences preferences;
+    private String loggedUserId;
+
+    @Override
+    public void onNewIntent(Intent intent) { super.onNewIntent(intent);
+        String userId= "571494fbe4b0d25de0692e40";
+        List<EventRecommendationResponse> res = eventrecommendationManager.getRecommendations(userId);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
+        circleButton.setOnTouchListener(new CircleTouchListener());
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        loggedUserId = preferences.getString("id", "");
         try {
             showPopUp();
         } catch (ParseException e) {
@@ -65,7 +68,6 @@ public class MainActivity extends AppActivity {
         e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
         return  e;
     }
-    private String url = "http://alfred.eu:8080/recommendation-engine/services/recommendationServices/";
     public void showPopUp() throws ParseException {
 
         // add your items, this can be done programatically
@@ -80,9 +82,8 @@ public class MainActivity extends AppActivity {
         resp[5] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),6);
         resp[6] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),7);
         resp[7] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),8);
-        WebServiceClient wbClient = new WebServiceClient();
-        String userId= "571494fbe4b0d25de0692e40";
-        List<Object>  result= wbClient.doGetRequest(url+"users/"+userId+"/events", List.class);
+
+        //List<Object>  result= wbClient.doGetRequest(url+"users/"+userId+"/events", List.class);
 
         ArrayAdapterItem adapter = null;
         try
@@ -120,28 +121,29 @@ public class MainActivity extends AppActivity {
         //Add custom events here
         switch (command) {
             case (GET_RECOMMENDATIONS_FOR_USER):
-              /*  GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade,recommendationManager);
-                cta.performAction(command, map);*/
+                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade);
+                cta.performAction(command, map);
                 break;
+
             default:
                 break;
         }
     }
 
-  /*  @Override
-    public void onStart() {
-        super.onStart();
+    @Override
+    public void performWhQuery(String s, Map<String, String> map) {
 
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW,
-                "Main Page",
+    }
 
-                Uri.parse("http://host/path"),
-                Uri.parse("android-app://alfred.eu.eventrecommendationapp/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }*/
+    @Override
+    public void performValidity(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performEntityRecognizer(String s, Map<String, String> map) {
+
+    }
 
     @Override
     public void onStop() {

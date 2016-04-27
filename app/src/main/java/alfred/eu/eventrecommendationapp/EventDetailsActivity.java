@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,7 +25,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.TimeZone;
 
-import alfred.eu.eventrecommendationapp.web.RecommendationReason;
+import eu.alfred.api.personalization.model.eventrecommendation.RecommendationReason;
 import eu.alfred.ui.AppActivity;
 
 /**
@@ -43,6 +42,21 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
 
     @Override
     public void performAction(String s, Map<String, String> map) {
+    }
+
+    @Override
+    public void performWhQuery(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performValidity(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performEntityRecognizer(String s, Map<String, String> map) {
+
     }
 
     @Override

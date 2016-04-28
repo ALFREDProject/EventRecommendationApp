@@ -8,6 +8,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +25,7 @@ import java.util.Map;
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import eu.alfred.api.personalization.model.eventrecommendation.*;
+import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
@@ -28,11 +34,53 @@ public class MainActivity extends AppActivity {
 
     private SharedPreferences preferences;
     private String loggedUserId;
-
+    private List<EventRecommendationResponse> resp;
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
         String userId= "571494fbe4b0d25de0692e40";
-        List<EventRecommendationResponse> res = eventrecommendationManager.getRecommendations(userId);
+        eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
+            @Override
+            public void OnSuccess(JSONObject jsonObject) {
+                if(jsonObject!=null)
+                {
+
+                }
+            }
+
+            @Override
+            public void OnSuccess(JSONArray jsonArray) {
+                if(jsonArray!=null)
+                {
+
+                }
+            }
+
+            @Override
+            public void OnSuccess(Object o) {
+                if(o!=null)
+                {
+
+                }
+            }
+
+            @Override
+            public void OnSuccess(String s) {
+                if(s!=null)
+                {
+                   resp =new Gson().fromJson(s,List.class);
+                    try {
+                        showPopUp();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void OnError(Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -43,14 +91,14 @@ public class MainActivity extends AppActivity {
         circleButton.setOnTouchListener(new CircleTouchListener());
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         loggedUserId = preferences.getString("id", "");
-        try {
+        /*try {
             showPopUp();
         } catch (ParseException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
-    private Event getEvent() throws ParseException {
+  /*  private Event getEvent() throws ParseException {
 
         SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Event e = new Event();
@@ -67,12 +115,12 @@ public class MainActivity extends AppActivity {
         e.setLocale("Ganderkesee indoor swimming");
         e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
         return  e;
-    }
+    }*/
     public void showPopUp() throws ParseException {
 
         // add your items, this can be done programatically
         // your items can be from a database
-        EventRecommendationResponse []resp = new EventRecommendationResponse[8];
+      /*  EventRecommendationResponse []resp = new EventRecommendationResponse[8];
         Event e = getEvent();
         resp[0] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),1);
         resp[1] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),2);
@@ -82,13 +130,14 @@ public class MainActivity extends AppActivity {
         resp[5] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),6);
         resp[6] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),7);
         resp[7] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),8);
-
+*/
         //List<Object>  result= wbClient.doGetRequest(url+"users/"+userId+"/events", List.class);
 
         ArrayAdapterItem adapter = null;
         try
         {
-            adapter = new ArrayAdapterItem(this, R.layout.list_view_row_item, resp);
+            EventRecommendationResponse[] array = resp.toArray(new EventRecommendationResponse[resp.size()]);
+            adapter = new ArrayAdapterItem(this, R.layout.list_view_row_item,array);
         }
         catch (Exception except)
         {

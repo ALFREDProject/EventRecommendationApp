@@ -95,7 +95,7 @@ public class MainActivity extends AppActivity {
 
                         Gson gson = builder.create();
                         //Gson gson = new  Gson ();
-                            EventRecommendationResponseWrapper r =gson.fromJson(s,EventRecommendationResponseWrapper.class);
+                        EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
                       /*  TypeToken<List<EventRecommendationResponseWrapper>> token = new TypeToken<List<EventRecommendationResponseWrapper>>(){};
                         List<EventRecommendationResponse> personList = new Gson().fromJson(s, token.getType());
                         List<EventRecommendationResponse> variable = (List<EventRecommendationResponse>)(List<?>) resp;
@@ -104,7 +104,7 @@ public class MainActivity extends AppActivity {
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }*/
-                        r.getRe().size();
+                        //r.getRe().size();
                     }
                     catch(Exception e)
                     {
@@ -128,6 +128,25 @@ public class MainActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Gson g = new Gson();
+        try {
+            EventRecommendationResponse resp = new EventRecommendationResponse(getEvent(),EnumSet.of(RecommendationReason.DISTANCE),2);
+            String json = g.toJson(resp);
+            EventRecommendationResponse resp2 = g.fromJson(json,EventRecommendationResponse.class);
+            resp.getEvent();
+
+            List<EventRecommendationResponse> listof = new ArrayList<>();
+            listof.add(resp);
+            listof.add(resp);
+            listof.add(resp);
+            listof.add(resp);
+            json = g.toJson(listof);
+            EventRecommendationResponse[] resp2List = g.fromJson(json,EventRecommendationResponse[].class);
+            resp.getEvent();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
         circleButton.setOnTouchListener(new CircleTouchListener());
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -139,7 +158,7 @@ public class MainActivity extends AppActivity {
         }*/
     }
 
-    /*  private Event getEvent() throws ParseException {
+      private Event getEvent() throws ParseException {
 
           SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
           Event e = new Event();
@@ -156,7 +175,7 @@ public class MainActivity extends AppActivity {
           e.setLocale("Ganderkesee indoor swimming");
           e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
           return  e;
-      }*/
+      }
     public void showPopUp() throws ParseException {
 
         // add your items, this can be done programatically

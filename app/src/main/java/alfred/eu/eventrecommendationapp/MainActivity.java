@@ -9,13 +9,21 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
@@ -38,6 +46,7 @@ public class MainActivity extends AppActivity {
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
         String userId= "571494fbe4b0d25de0692e40";
+
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -67,15 +76,47 @@ public class MainActivity extends AppActivity {
             public void OnSuccess(String s) {
                 if(s!=null)
                 {
-                   resp =new Gson().fromJson(s,List.class);
-                    try {
-                        showPopUp();
-                    } catch (ParseException e) {
+                    try
+                    {
+                        // Creates the json object which will manage the information received
+                        GsonBuilder builder = new GsonBuilder();
+
+                        // Register an adapter to manage the date types as long values
+                        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                                return new Date();
+                            }
+                        });
+                        /*builder.registerTypeAdapter(Tickets[].class, new JsonDeserializer<Tickets>() {
+                            public Tickets deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                                return null;
+                            }
+                        });*/
+
+                        Gson gson = builder.create();
+                        //Gson gson = new  Gson ();
+                            EventRecommendationResponseWrapper r =gson.fromJson(s,EventRecommendationResponseWrapper.class);
+                      /*  TypeToken<List<EventRecommendationResponseWrapper>> token = new TypeToken<List<EventRecommendationResponseWrapper>>(){};
+                        List<EventRecommendationResponse> personList = new Gson().fromJson(s, token.getType());
+                        List<EventRecommendationResponse> variable = (List<EventRecommendationResponse>)(List<?>) resp;
+                        try {
+                            showPopUp();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }*/
+                        r.getRe().size();
+                    }
+                    catch(Exception e)
+                    {
                         e.printStackTrace();
                     }
                 }
             }
 
+            public  <T> List<T> stringToArray(String s, Class<T[]> clazz) {
+                T[] arr = new Gson().fromJson(s, clazz);
+                return Arrays.asList(arr); //or return Arrays.asList(new Gson().fromJson(s, clazz)); for a one-liner
+            }
             @Override
             public void OnError(Exception e) {
                 e.printStackTrace();
@@ -98,24 +139,24 @@ public class MainActivity extends AppActivity {
         }*/
     }
 
-  /*  private Event getEvent() throws ParseException {
+    /*  private Event getEvent() throws ParseException {
 
-        SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        Event e = new Event();
-        String title = "Dummyevent";
-        e.setDescription("Description: "+title);
-        e.setCreated(new Date());
-        e.setCapacity("10");
-        e.setTitle(title);
-        e.setEventID("pouq3po04u30948");
-        e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
-        Date d = sd.parse("26.04.2016 13:37");
-        e.setStart_date(d);
-        e.setEnd_date(sd.parse("26.04.2016 17:37"));
-        e.setLocale("Ganderkesee indoor swimming");
-        e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
-        return  e;
-    }*/
+          SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
+          Event e = new Event();
+          String title = "Dummyevent";
+          e.setDescription("Description: "+title);
+          e.setCreated(new Date());
+          e.setCapacity("10");
+          e.setTitle(title);
+          e.setEventID("pouq3po04u30948");
+          e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
+          Date d = sd.parse("26.04.2016 13:37");
+          e.setStart_date(d);
+          e.setEnd_date(sd.parse("26.04.2016 17:37"));
+          e.setLocale("Ganderkesee indoor swimming");
+          e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
+          return  e;
+      }*/
     public void showPopUp() throws ParseException {
 
         // add your items, this can be done programatically
@@ -136,7 +177,7 @@ public class MainActivity extends AppActivity {
         ArrayAdapterItem adapter = null;
         try
         {
-            EventRecommendationResponse[] array = resp.toArray(new EventRecommendationResponse[resp.size()]);
+            EventRecommendationResponse[] array = (EventRecommendationResponse[]) resp.toArray();
             adapter = new ArrayAdapterItem(this, R.layout.list_view_row_item,array);
         }
         catch (Exception except)
@@ -196,7 +237,7 @@ public class MainActivity extends AppActivity {
 
     @Override
     public void onStop() {
-       super.onStop();
+        super.onStop();
 
       /*  // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.

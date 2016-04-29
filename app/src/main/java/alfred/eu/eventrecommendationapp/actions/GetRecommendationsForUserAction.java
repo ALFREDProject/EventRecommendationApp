@@ -1,6 +1,10 @@
 package alfred.eu.eventrecommendationapp.actions;
 
+import android.content.Intent;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,13 +16,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
-import java.text.ParseException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import alfred.eu.eventrecommendationapp.CustomDeserializer;
+import alfred.eu.eventrecommendationapp.EventDetailsActivity;
 import alfred.eu.eventrecommendationapp.MainActivity;
+import alfred.eu.eventrecommendationapp.R;
+import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.api.personalization.webservice.eventrecommendation.EventrecommendationManager;
@@ -32,6 +42,7 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
 
     MainActivity main;
     Cade cade;
+    private List<EventRecommendationResponse> resp;
     EventrecommendationManager eventrecommendationManager;
     public GetRecommendationsForUserAction(MainActivity main, Cade cade, EventrecommendationManager eventrecommendationManager) {
         this.main = main;
@@ -50,7 +61,6 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
             public void OnSuccess(JSONObject jsonObject) {
                 if(jsonObject!=null)
                 {
-
                 }
             }
 
@@ -58,7 +68,6 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
             public void OnSuccess(JSONArray jsonArray) {
                 if(jsonArray!=null)
                 {
-
                 }
             }
 
@@ -66,10 +75,8 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
             public void OnSuccess(Object o) {
                 if(o!=null)
                 {
-
                 }
             }
-
             @Override
             public void OnSuccess(String s) {
                 if(s!=null)
@@ -78,31 +85,56 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
                     {
                         // Creates the json object which will manage the information received
                         GsonBuilder builder = new GsonBuilder();
-
+                        builder.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
                         // Register an adapter to manage the date types as long values
                         builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
                             public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-                                return new Date();
+                                Date d = new Date(json.getAsLong());
+                                return d;
                             }
                         });
-                        /*builder.registerTypeAdapter(Tickets[].class, new JsonDeserializer<Tickets>() {
-                            public Tickets deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                                return null;
-                            }
-                        });*/
-
+                        builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
                         Gson gson = builder.create();
                         //Gson gson = new  Gson ();
                         EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
-                      /*  TypeToken<List<EventRecommendationResponseWrapper>> token = new TypeToken<List<EventRecommendationResponseWrapper>>(){};
-                        List<EventRecommendationResponse> personList = new Gson().fromJson(s, token.getType());
-                        List<EventRecommendationResponse> variable = (List<EventRecommendationResponse>)(List<?>) resp;*/
-                        try {
-                            main.showPopUp();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                        Log.i("fertig",r.length+"");
+                        resp = new ArrayList<>(Arrays.asList(r));
+                        ArrayAdapterItem adapter = null;
+                        try
+                        {
+                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
+                            int fuck = 0;
+                            for (Object o : resp.toArray()) {
+                                array[fuck] = (EventRecommendationResponse)o;
+                                fuck++;
+                            }
+                            Log.i("fertig","Fuck is "+fuck);
+                            adapter = new ArrayAdapterItem(main, R.layout.list_view_row_item,array);
                         }
-                        //r.getRe().size();
+                        catch (Exception except)
+                        {
+                            except.printStackTrace();
+                        }
+                        ListView list = (ListView)main.findViewById(R.id.lwitem);
+                        list.setAdapter(adapter);
+                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+                                EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
+                                Intent i = new Intent(main, EventDetailsActivity.class);
+                                DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                                i.putExtra("eventTitle",entry.getEvent().getTitle());
+                                i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
+                                i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
+                                i.putExtra("eventLocale",entry.getEvent().getLocale());
+                                i.putExtra("eventDescription",entry.getEvent().getDescription());
+                                i.putExtra("eventId",entry.getEvent().getEventID());
+                                i.putExtra("reasons",entry.getReasons());
+                                i.putExtra("weight",entry.getWeight());
+                                main.startActivity(i);
+                            }
+                        });
+                        Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
                     }
                     catch(Exception e)
                     {
@@ -110,7 +142,6 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
                     }
                 }
             }
-
             public  <T> List<T> stringToArray(String s, Class<T[]> clazz) {
                 T[] arr = new Gson().fromJson(s, clazz);
                 return Arrays.asList(arr); //or return Arrays.asList(new Gson().fromJson(s, clazz)); for a one-liner

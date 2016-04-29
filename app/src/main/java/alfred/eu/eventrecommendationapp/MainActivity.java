@@ -4,143 +4,26 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
-import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
-import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
-import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity {
-    private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
-    private MainActivity instance;
+    private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
     private String loggedUserId;
-    private List<EventRecommendationResponse> resp;
+
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
-        String userId= "571494fbe4b0d25de0692e40";
-        instance = this;
-        eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
-            @Override
-            public void OnSuccess(JSONObject jsonObject) {
-                if(jsonObject!=null)
-                {
-                }
-            }
 
-            @Override
-            public void OnSuccess(JSONArray jsonArray) {
-                if(jsonArray!=null)
-                {
-                }
-            }
-
-            @Override
-            public void OnSuccess(Object o) {
-                if(o!=null)
-                {
-                }
-            }
-            @Override
-            public void OnSuccess(String s) {
-                if(s!=null)
-                {
-                    try
-                    {
-                        // Creates the json object which will manage the information received
-                        GsonBuilder builder = new GsonBuilder();
-                        builder.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                        // Register an adapter to manage the date types as long values
-                        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-                            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-                                Date d = new Date(json.getAsLong());
-                                return d;
-                            }
-                        });
-                        builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
-                        Gson gson = builder.create();
-                        //Gson gson = new  Gson ();
-                        EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
-                        Log.i("fertig",r.length+"");
-                        resp = new ArrayList<>(Arrays.asList(r));
-                        ArrayAdapterItem adapter = null;
-                        try
-                        {
-                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
-                            int fuck = 0;
-                            for (Object o : resp.toArray()) {
-                                array[fuck] = (EventRecommendationResponse)o;
-                                fuck++;
-                            }
-                            Log.i("fertig","Fuck is "+fuck);
-                            adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
-                        }
-                        catch (Exception except)
-                        {
-                            except.printStackTrace();
-                        }
-                        ListView list = (ListView)findViewById(R.id.lwitem);
-                        list.setAdapter(adapter);
-                        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
-                                EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
-                                Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
-                                DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-                                i.putExtra("eventTitle",entry.getEvent().getTitle());
-                                i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
-                                i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
-                                i.putExtra("eventLocale",entry.getEvent().getLocale());
-                                i.putExtra("eventDescription",entry.getEvent().getDescription());
-                                i.putExtra("eventId",entry.getEvent().getEventID());
-                                i.putExtra("reasons",entry.getReasons());
-                                i.putExtra("weight",entry.getWeight());
-                                startActivity(i);
-                            }
-                        });
-                        Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
-                    }
-                    catch(Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            public  <T> List<T> stringToArray(String s, Class<T[]> clazz) {
-                T[] arr = new Gson().fromJson(s, clazz);
-                return Arrays.asList(arr); //or return Arrays.asList(new Gson().fromJson(s, clazz)); for a one-liner
-            }
-            @Override
-            public void OnError(Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,13 +60,14 @@ public class MainActivity extends AppActivity {
         //Add custom events here
         switch (command) {
             case (GET_RECOMMENDATIONS_FOR_USER):
-                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade);
+                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade,eventrecommendationManager);
                 cta.performAction(command, map);
                 break;
 
             default:
                 break;
         }
+        cade.sendActionResult(true);
     }
 
     @Override

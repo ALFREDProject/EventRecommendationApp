@@ -12,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -72,7 +73,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
         eventTitle = b.get("eventTitle").toString();
         eventStartDate = b.get("eventStartDate").toString();
         eventEndDate = b.get("eventEndDate").toString();
-        eventLocale = b.get("eventLocale").toString();
+        eventLocale = b.get("eventAddress").toString();
         eventId = b.get("eventId").toString();
         eventDescription = b.get("eventDescription").toString();
         reasons = (EnumSet<RecommendationReason>) b.get("reasons");
@@ -114,13 +115,14 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
                 values.put(CalendarContract.Events.EVENT_TIMEZONE, tz.getDisplayName());
 
                 addToCalendar(cr,values);
+                Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
                 startActivity(i);
             }
         };
         View.OnClickListener dontGoHandler = new View.OnClickListener() {
             public void onClick(View v) {
-                // Toast.makeText(EventDetailsActivity.this,"Hallo Don't go", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
                 startActivity(i);
             }

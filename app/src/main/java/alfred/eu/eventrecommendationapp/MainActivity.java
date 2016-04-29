@@ -44,7 +44,7 @@ public class MainActivity extends AppActivity {
     private List<EventRecommendationResponse> resp;
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
-        String userId= "571494fbe4b0d25de0692e40";
+        String userId= "572312a8e4b0d25de0692eea";
         instance = this;
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
@@ -95,7 +95,14 @@ public class MainActivity extends AppActivity {
                             EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
                             int fuck = 0;
                             for (Object o : resp.toArray()) {
-                                array[fuck] = (EventRecommendationResponse)o;
+                                EventRecommendationResponse entry = (EventRecommendationResponse)o;
+                                /*** START: Remove useless entries ***/
+                                if(entry.getEvent().getTitle()==null || entry.getEvent().getTitle()==""||entry.getEvent().getDescription()==null || entry.getEvent().getDescription()==""||entry.getEvent().getVenue().getPostal_code()==null||entry.getEvent().getVenue().getPostal_code()=="")
+                                {
+                                    continue;
+                                }
+                                /*** END: Remove useless entries ***/
+                                array[fuck] = entry;
                                 fuck++;
                             }
                             Log.i("fertig","Fuck is "+fuck);
@@ -113,10 +120,12 @@ public class MainActivity extends AppActivity {
                                 EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
                                 Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
                                 DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+
                                 i.putExtra("eventTitle",entry.getEvent().getTitle());
                                 i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
                                 i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
-                                i.putExtra("eventLocale",entry.getEvent().getLocale());
+                                i.putExtra("eventAddress",entry.getEvent().getVenue().getAddress()+", "+entry.getEvent().getVenue().getPostal_code()+" "+entry.getEvent().getVenue().getCity());
                                 i.putExtra("eventDescription",entry.getEvent().getDescription());
                                 i.putExtra("eventId",entry.getEvent().getEventID());
                                 i.putExtra("reasons",entry.getReasons());
@@ -151,9 +160,7 @@ public class MainActivity extends AppActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         loggedUserId = preferences.getString("id", "");
     }
-
-    private Event getEvent() throws ParseException {
-
+   /* private Event getEvent() throws ParseException {
         SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Event e = new Event();
         String title = "Dummyevent";
@@ -169,7 +176,7 @@ public class MainActivity extends AppActivity {
         e.setLocale("Ganderkesee indoor swimming");
         e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
         return  e;
-    }
+    }*/
 
     @Override
     public void performAction(String command, Map<String, String> map) {

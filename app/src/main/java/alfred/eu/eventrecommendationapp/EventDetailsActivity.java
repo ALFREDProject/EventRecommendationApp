@@ -40,6 +40,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
     private String eventDescription;
     private EnumSet<RecommendationReason> reasons;
     private String eventId;
+    private String userId;
 
     @Override
     public void performAction(String s, Map<String, String> map) {
@@ -70,6 +71,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
     private void build() {
         Intent i = getIntent();
         Bundle b = i.getExtras();
+        userId = b.get("userId").toString();
         eventTitle = b.get("eventTitle").toString();
         eventStartDate = b.get("eventStartDate").toString();
         eventEndDate = b.get("eventEndDate").toString();
@@ -115,6 +117,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
                 values.put(CalendarContract.Events.EVENT_TIMEZONE, tz.getDisplayName());
 
                 addToCalendar(cr,values);
+                eventrecommendationManager.acceptRejectEvent(userId,eventId,true);
                 Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
                 startActivity(i);
@@ -123,6 +126,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
         View.OnClickListener dontGoHandler = new View.OnClickListener() {
             public void onClick(View v) {
                 Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
+                eventrecommendationManager.acceptRejectEvent(userId,eventId,false);
                 Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
                 startActivity(i);
             }

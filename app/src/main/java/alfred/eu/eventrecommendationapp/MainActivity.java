@@ -37,13 +37,13 @@ import eu.alfred.ui.CircleButton;
 public class MainActivity extends AppActivity {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
-    private String loggedUserId;
+    private String userId;
     MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
 
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
-        String userId= "572312a8e4b0d25de0692eea";
+        userId= "572312a8e4b0d25de0692eea";
         instance = this;
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
@@ -129,7 +129,7 @@ public class MainActivity extends AppActivity {
                                 Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
                                 DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-
+                                i.putExtra("userId",userId);
                                 i.putExtra("eventTitle",entry.getEvent().getTitle());
                                 i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
                                 i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
@@ -167,7 +167,7 @@ public class MainActivity extends AppActivity {
         circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
         circleButton.setOnTouchListener(new CircleTouchListener());
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        loggedUserId = preferences.getString("id", "");
+        userId = preferences.getString("id", "");
     }
    /* private Event getEvent() throws ParseException {
         SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");

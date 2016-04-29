@@ -13,8 +13,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,52 +30,51 @@ import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
-import eu.alfred.api.personalization.model.eventrecommendation.*;
+import eu.alfred.api.personalization.model.eventrecommendation.Event;
+import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
+import eu.alfred.api.personalization.model.eventrecommendation.RecommendationReason;
 import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity {
-    private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
+    private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
 
     private SharedPreferences preferences;
     private String loggedUserId;
     private List<EventRecommendationResponse> resp;
     @Override
-    public void onNewIntent(Intent intent) { super.onNewIntent(intent);
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
         String userId= "571494fbe4b0d25de0692e40";
 
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
-                if(jsonObject!=null)
-                {
+                if (jsonObject != null) {
 
                 }
             }
 
             @Override
             public void OnSuccess(JSONArray jsonArray) {
-                if(jsonArray!=null)
-                {
+                if (jsonArray != null) {
 
                 }
             }
 
             @Override
             public void OnSuccess(Object o) {
-                if(o!=null)
-                {
+                if (o != null) {
 
                 }
             }
 
             @Override
             public void OnSuccess(String s) {
-                if(s!=null)
-                {
-                    try
-                    {
+                if (s != null) {
+                    try {
                         // Creates the json object which will manage the information received
                         GsonBuilder builder = new GsonBuilder();
 
@@ -95,28 +92,27 @@ public class MainActivity extends AppActivity {
 
                         Gson gson = builder.create();
                         //Gson gson = new  Gson ();
-                        EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
-                      /*  TypeToken<List<EventRecommendationResponseWrapper>> token = new TypeToken<List<EventRecommendationResponseWrapper>>(){};
+                        /*EventRecommendationResponse[] r = gson.fromJson(s, EventRecommendationResponse[].class);
+                        TypeToken<List<EventRecommendationResponseWrapper>> token = new TypeToken<List<EventRecommendationResponseWrapper>>(){};
                         List<EventRecommendationResponse> personList = new Gson().fromJson(s, token.getType());
                         List<EventRecommendationResponse> variable = (List<EventRecommendationResponse>)(List<?>) resp;
                         try {
                             showPopUp();
                         } catch (ParseException e) {
                             e.printStackTrace();
-                        }*/
-                        //r.getRe().size();
-                    }
-                    catch(Exception e)
-                    {
+                        }
+                        //r.getRe().size();*/
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }
 
-            public  <T> List<T> stringToArray(String s, Class<T[]> clazz) {
+            public <T> List<T> stringToArray(String s, Class<T[]> clazz) {
                 T[] arr = new Gson().fromJson(s, clazz);
                 return Arrays.asList(arr); //or return Arrays.asList(new Gson().fromJson(s, clazz)); for a one-liner
             }
+
             @Override
             public void OnError(Exception e) {
                 e.printStackTrace();
@@ -180,7 +176,7 @@ public class MainActivity extends AppActivity {
 
         // add your items, this can be done programatically
         // your items can be from a database
-      /*  EventRecommendationResponse []resp = new EventRecommendationResponse[8];
+        EventRecommendationResponse []resp = new EventRecommendationResponse[8];
         Event e = getEvent();
         resp[0] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),1);
         resp[1] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),2);
@@ -190,13 +186,13 @@ public class MainActivity extends AppActivity {
         resp[5] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),6);
         resp[6] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),7);
         resp[7] = new EventRecommendationResponse(e, EnumSet.of(RecommendationReason.FRIENDS_GOING),8);
-*/
+
         //List<Object>  result= wbClient.doGetRequest(url+"users/"+userId+"/events", List.class);
 
         ArrayAdapterItem adapter = null;
         try
         {
-            EventRecommendationResponse[] array = (EventRecommendationResponse[]) resp.toArray();
+            EventRecommendationResponse[] array = resp;
             adapter = new ArrayAdapterItem(this, R.layout.list_view_row_item,array);
         }
         catch (Exception except)
@@ -230,13 +226,15 @@ public class MainActivity extends AppActivity {
         //Add custom events here
         switch (command) {
             case (GET_RECOMMENDATIONS_FOR_USER):
-                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade);
+                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade, eventrecommendationManager);
                 cta.performAction(command, map);
                 break;
 
             default:
                 break;
         }
+
+        cade.sendActionResult(true);
     }
 
     @Override

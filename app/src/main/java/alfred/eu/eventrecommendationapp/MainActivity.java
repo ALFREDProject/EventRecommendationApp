@@ -3,7 +3,6 @@ package alfred.eu.eventrecommendationapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,16 +19,19 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
+import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
+import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
 import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
@@ -40,11 +42,46 @@ public class MainActivity extends AppActivity {
     private String userId;
     MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
+    private Event getEvent() {
+        Event e = new Event();
+        String title = "MzFandzEvent";
+        e.setDescription("Description: "+title);
+        e.setCreated(new Date());
+        e.setCapacity("10");
+        e.setTitle(title);
+         SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
+        Date d = null;
+        try {
+            d = sd.parse("22.03.1990 11:11");
+        } catch (ParseException e1) {
+            e1.printStackTrace();
+        }
+        e.setStart_date(d);
 
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d);
+        cal.add(Calendar.HOUR, 2);
+        Date oneHourBack = cal.getTime();
+        e.setEnd_date(oneHourBack);
+
+        return e;
+    }
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
+
         userId= "572312a8e4b0d25de0692eea";
         instance = this;
+        Event e = getEvent();
+        String myjsonevent = new Gson().toJson(e);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(GlobalsettingsKeys.userEventsAccepted,myjsonevent);
+        edit.commit();
+        edit.apply();
+        myjsonevent = "";
+         myjsonevent = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+        e = null;
+        e = new Gson().fromJson(myjsonevent,Event.class);
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -88,6 +125,10 @@ public class MainActivity extends AppActivity {
                         EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
                         Log.i("fertig",r.length+"");
                         resp = new ArrayList<>(Arrays.asList(r));
+
+                        checkPrevious();
+
+
                         ArrayAdapterItem adapter = null;
                         try
                         {
@@ -104,16 +145,15 @@ public class MainActivity extends AppActivity {
                                 /*** END: Remove useless entries ***/
                                 Log.i("-------Title-------",entry.getEvent().getTitle());
                             }
-
                             EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
-                            int fuck = 0;
+                            int runningIndex = 0;
                             for (Object o : resp.toArray()) {
                                 EventRecommendationResponse entry = (EventRecommendationResponse)o;
                                 Log.i("-------Title-------",entry.getEvent().getTitle());
-                                array[fuck] = entry;
-                                fuck++;
+                                array[runningIndex] = entry;
+                                runningIndex++;
                             }
-                            Log.i("fertig","Fuck is "+fuck);
+                            Log.i("done: ","runningIndex is "+ runningIndex);
                             adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
                         }
                         catch (Exception except)
@@ -149,10 +189,59 @@ public class MainActivity extends AppActivity {
                     }
                 }
             }
-            public  <T> List<T> stringToArray(String s, Class<T[]> clazz) {
-                T[] arr = new Gson().fromJson(s, clazz);
-                return Arrays.asList(arr); //or return Arrays.asList(new Gson().fromJson(s, clazz)); for a one-liner
+
+            private void checkPrevious() {
+                if(getIntent().getExtras()!= null && getIntent().getExtras().get("eventAccept")!=null && getIntent().getExtras().get("eventAccept")!="")
+                {
+                    final String eventId = getIntent().getExtras().get("eventAccept").toString();
+                    for (final EventRecommendationResponse r: resp) {
+                        if(r.getEvent().getEventID().equals(eventId))
+                        {
+
+
+
+                          /*  globalSettings.getGlobalSettings(new GlobalSettingsResponse() {
+                                @Override
+                                public void OnSuccess(HashMap<String, Object> hashMap) {
+                                    Object o = hashMap.get(GlobalsettingsKeys.userEventsAccepted);
+                                    List<Event> eventIds = new ArrayList<>();
+                                    if(o!= null)
+                                        eventIds  =(ArrayList<Event>)o;
+                                    eventIds.add(r.getEvent());
+                                    try
+                                    {
+                                        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted,eventIds);
+
+                                    }
+                                    catch(Exception e)
+                                    {
+                                        Log.e("StoreGSettings",e.getLocalizedMessage());
+                                    }
+                                  /*  globalSettings.getGlobalSettings(new GlobalSettingsResponse() {
+                                        @Override
+                                        public void OnSuccess(HashMap<String, Object> hashMap) {
+                                            Object o = hashMap.get(GlobalsettingsKeys.userEventsAccepted);
+                                            o.toString();
+                                        }
+
+                                        @Override
+                                        public void OnError(Exception e) {
+
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void OnError(Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });*/
+                        }
+
+                    }
+                }
             }
+
             @Override
             public void OnError(Exception e) {
                 e.printStackTrace();
@@ -163,30 +252,11 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
         circleButton.setOnTouchListener(new CircleTouchListener());
-        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        userId = preferences.getString("id", "");
     }
-   /* private Event getEvent() throws ParseException {
-        SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        Event e = new Event();
-        String title = "Dummyevent";
-        e.setDescription("Description: "+title);
-        e.setCreated(new Date());
-        e.setCapacity("10");
-        e.setTitle(title);
-        e.setEventID("pouq3po04u30948");
-        e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
-        Date d = sd.parse("26.04.2016 13:37");
-        e.setStart_date(d);
-        e.setEnd_date(sd.parse("26.04.2016 17:37"));
-        e.setLocale("Ganderkesee indoor swimming");
-        e.setDescription("Swimming is good for you - it keeps you healthy and fit and this is very nice. This is also just a stupid useless text to get the content of the f**** screen filled");
-        return  e;
-    }*/
-
     @Override
     public void performAction(String command, Map<String, String> map) {
 

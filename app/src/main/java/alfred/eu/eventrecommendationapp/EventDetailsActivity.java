@@ -92,7 +92,6 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
         TextView txt_description = (TextView) this.findViewById(R.id.txt_description);
         txt_description.setText(eventDescription);
 
-
         View.OnClickListener goHandler = new View.OnClickListener() {
             public void onClick(View v) {
                 Calendar cal = Calendar.getInstance();
@@ -109,17 +108,18 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-
                 values.put(CalendarContract.Events.TITLE, eventTitle);
                 values.put(CalendarContract.Events.DESCRIPTION, eventDescription);
                 values.put(CalendarContract.Events.CALENDAR_ID, date.getTime());
 
                 values.put(CalendarContract.Events.EVENT_TIMEZONE, tz.getDisplayName());
 
+
                 addToCalendar(cr,values);
                 eventrecommendationManager.acceptRejectEvent(userId,eventId,true);
                 Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
+                i.putExtra("eventAccept",eventId);
                 startActivity(i);
             }
         };

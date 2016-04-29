@@ -4,46 +4,26 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
-import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
-import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
-import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity {
-    private static final String GET_RECOMMENDATIONS_FOR_USER = "GetRecommendationsForUser";
-    private MainActivity instance;
+    private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
     private String loggedUserId;
-    private List<EventRecommendationResponse> resp;
+
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
+<<<<<<< HEAD
         String userId= "572312a8e4b0d25de0692eea";
         instance = this;
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
@@ -150,6 +130,9 @@ public class MainActivity extends AppActivity {
                 e.printStackTrace();
             }
         });
+=======
+
+>>>>>>> master
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,13 +167,14 @@ public class MainActivity extends AppActivity {
         //Add custom events here
         switch (command) {
             case (GET_RECOMMENDATIONS_FOR_USER):
-                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade);
+                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade,eventrecommendationManager);
                 cta.performAction(command, map);
                 break;
 
             default:
                 break;
         }
+        cade.sendActionResult(true);
     }
 
     @Override

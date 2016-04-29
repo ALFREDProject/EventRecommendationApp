@@ -4,15 +4,33 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import java.text.ParseException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
-import eu.alfred.api.personalization.model.eventrecommendation.Event;
+import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
+import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
+import eu.alfred.api.personalization.responses.PersonalizationResponse;
 import eu.alfred.ui.AppActivity;
 import eu.alfred.ui.CircleButton;
 
@@ -20,10 +38,11 @@ public class MainActivity extends AppActivity {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
     private String loggedUserId;
+    MainActivity instance;
+    private ArrayList<EventRecommendationResponse> resp;
 
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
-<<<<<<< HEAD
         String userId= "572312a8e4b0d25de0692eea";
         instance = this;
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
@@ -72,16 +91,25 @@ public class MainActivity extends AppActivity {
                         ArrayAdapterItem adapter = null;
                         try
                         {
-                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
-                            int fuck = 0;
+                            /***Clean response**/
                             for (Object o : resp.toArray()) {
                                 EventRecommendationResponse entry = (EventRecommendationResponse)o;
                                 /*** START: Remove useless entries ***/
                                 if(entry.getEvent().getTitle()==null || entry.getEvent().getTitle()==""||entry.getEvent().getDescription()==null || entry.getEvent().getDescription()==""||entry.getEvent().getVenue().getPostal_code()==null||entry.getEvent().getVenue().getPostal_code()=="")
                                 {
+                                    Log.i("----Content check----","Something is completely wrong here");
+                                    resp.remove(o);
                                     continue;
                                 }
                                 /*** END: Remove useless entries ***/
+                                Log.i("-------Title-------",entry.getEvent().getTitle());
+                            }
+
+                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
+                            int fuck = 0;
+                            for (Object o : resp.toArray()) {
+                                EventRecommendationResponse entry = (EventRecommendationResponse)o;
+                                Log.i("-------Title-------",entry.getEvent().getTitle());
                                 array[fuck] = entry;
                                 fuck++;
                             }
@@ -96,7 +124,7 @@ public class MainActivity extends AppActivity {
                         list.setAdapter(adapter);
                         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
                                 Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
                                 DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
@@ -130,9 +158,7 @@ public class MainActivity extends AppActivity {
                 e.printStackTrace();
             }
         });
-=======
 
->>>>>>> master
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {

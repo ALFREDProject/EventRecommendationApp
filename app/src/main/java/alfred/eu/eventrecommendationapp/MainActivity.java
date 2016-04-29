@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
@@ -40,7 +41,8 @@ public class MainActivity extends AppActivity {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
     private String userId;
-    MainActivity instance;
+    private MainActivity instance;
+    private Gson g = new Gson();
     private ArrayList<EventRecommendationResponse> resp;
     private Event getEvent() {
         Event e = new Event();
@@ -49,7 +51,7 @@ public class MainActivity extends AppActivity {
         e.setCreated(new Date());
         e.setCapacity("10");
         e.setTitle(title);
-         SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
         e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
         Date d = null;
         try {
@@ -67,6 +69,17 @@ public class MainActivity extends AppActivity {
 
         return e;
     }
+
+    private List<Event> jsonToEventList(String json)
+    {
+        Event[] events = g.fromJson(json,Event[].class);
+        return new ArrayList<>(Arrays.asList(events));
+    }
+    private String eventListToJson(ArrayList<Event> list)
+    {
+        return g.toJson(list);
+    }
+
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
 
@@ -77,11 +90,13 @@ public class MainActivity extends AppActivity {
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString(GlobalsettingsKeys.userEventsAccepted,myjsonevent);
         edit.commit();
-        edit.apply();
+      //  globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"",myjsonevent);
+       /* edit.apply();
         myjsonevent = "";
-         myjsonevent = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+        myjsonevent = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
         e = null;
-        e = new Gson().fromJson(myjsonevent,Event.class);
+        e = new Gson().fromJson(myjsonevent,Event.class);*/
+
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -121,7 +136,6 @@ public class MainActivity extends AppActivity {
                         });
                         builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
                         Gson gson = builder.create();
-                        //Gson gson = new  Gson ();
                         EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
                         Log.i("fertig",r.length+"");
                         resp = new ArrayList<>(Arrays.asList(r));
@@ -197,45 +211,21 @@ public class MainActivity extends AppActivity {
                     for (final EventRecommendationResponse r: resp) {
                         if(r.getEvent().getEventID().equals(eventId))
                         {
-
-
-
-                          /*  globalSettings.getGlobalSettings(new GlobalSettingsResponse() {
-                                @Override
-                                public void OnSuccess(HashMap<String, Object> hashMap) {
-                                    Object o = hashMap.get(GlobalsettingsKeys.userEventsAccepted);
-                                    List<Event> eventIds = new ArrayList<>();
-                                    if(o!= null)
-                                        eventIds  =(ArrayList<Event>)o;
-                                    eventIds.add(r.getEvent());
-                                    try
-                                    {
-                                        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted,eventIds);
-
-                                    }
-                                    catch(Exception e)
-                                    {
-                                        Log.e("StoreGSettings",e.getLocalizedMessage());
-                                    }
-                                  /*  globalSettings.getGlobalSettings(new GlobalSettingsResponse() {
-                                        @Override
-                                        public void OnSuccess(HashMap<String, Object> hashMap) {
-                                            Object o = hashMap.get(GlobalsettingsKeys.userEventsAccepted);
-                                            o.toString();
-                                        }
-
-                                        @Override
-                                        public void OnError(Exception e) {
-
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void OnError(Exception e) {
-                                    e.printStackTrace();
-                                }
-                            });*/
+                            String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+                            ArrayList<Event> e = null;
+                            if(json.equals(""))
+                            {
+                                e = new ArrayList<Event>();
+                            }
+                            else
+                            {
+                                e=(ArrayList<Event>) jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
+                            }
+                            e.add(r.getEvent());
+                            SharedPreferences.Editor edit = prefs.edit();
+                            edit.putString(GlobalsettingsKeys.userEventsAccepted,eventListToJson(e));
+                            edit.commit();
+                            edit.apply();
                         }
 
                     }

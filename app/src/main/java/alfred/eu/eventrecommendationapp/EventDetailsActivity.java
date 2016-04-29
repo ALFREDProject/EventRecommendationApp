@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -60,11 +61,13 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
     public void performEntityRecognizer(String s, Map<String, String> map) {
 
     }
-
+    SharedPreferences sp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.event_details);
+
+        sp = getSharedPreferences("global_settings",MODE_PRIVATE);
+        setContentView(R.layout.event_details);//getSharedPreferences("global_settings",MODE_PRIVATE)
         build();
     }
 
@@ -118,9 +121,10 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
                 addToCalendar(cr,values);
                 eventrecommendationManager.acceptRejectEvent(userId,eventId,true);
                 Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
+                /*Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
                 i.putExtra("eventAccept",eventId);
-                startActivity(i);
+                startActivity(i);*/
+                EventDetailsActivity.this.finish();
             }
         };
         View.OnClickListener dontGoHandler = new View.OnClickListener() {

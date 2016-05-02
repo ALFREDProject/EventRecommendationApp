@@ -29,7 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import eu.alfred.api.personalization.helper.eventrecommendation.EventHelper;
+import eu.alfred.api.personalization.helper.eventrecommendation.EventRatingTransfer;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
+import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
 import eu.alfred.api.personalization.model.eventrecommendation.RecommendationReason;
 import eu.alfred.ui.AppActivity;
@@ -125,6 +128,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
                 storeEventForRating(eventId);
                 eventrecommendationManager.acceptRejectEvent(userId,eventId,true);
                 Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
+
                 EventDetailsActivity.this.finish();
             }
         };
@@ -143,30 +147,25 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
         btn_go.setOnClickListener(goHandler);
     }
     private void storeEventForRating(String eventId) {
-            List<Event> resp = EventHelper.jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
-           // final String eventId = getIntent().getExtras().get("eventAccept").toString();
-            for (final Event r: resp) {
-                if(r.getEventID().equals(eventId))
-                {
-                    String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
-                    ArrayList<Event> e;
-                    if(json.equals(""))
-                    {
-                        e = new ArrayList<>();
-                    }
-                    else
-                    {
-                        e=(ArrayList<Event>) EventHelper.jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
-                        if(e.contains(r))
-                            continue;
-                    }
-                    e.add(r);
-                    SharedPreferences.Editor edit = prefs.edit();
-                    edit.putString(GlobalsettingsKeys.userEventsAccepted,EventHelper.eventListToJson(e));
-                    edit.commit();
-                    edit.apply();
+        String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+        ArrayList<EventRatingTransfer> x  =EventHelper.jsonToEventTransferList(json);
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (EventRatingTransfer r: x) {
+            if(r.getEventID().equals(eventId))
+            {
+                try {
+                    x.add(new EventRatingTransfer(eventId,format.parse(eventEndDate),format.parse(eventStartDate),format.parse(eventStartDate),eventTitle,eventDescription));
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
             }
+        }
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(GlobalsettingsKeys.userEventsAccepted,EventHelper.eventTransferListToJson(x));
+        edit.commit();
+        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"",EventHelper.eventTransferListToJson(x));
+        edit.apply();
+
     }
     private void addToCalendar(ContentResolver cr, ContentValues values)
     {

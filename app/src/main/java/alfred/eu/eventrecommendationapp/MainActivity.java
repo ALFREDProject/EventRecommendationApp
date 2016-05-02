@@ -8,28 +8,20 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
+import eu.alfred.api.personalization.helper.eventrecommendation.EventHelper;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
@@ -42,7 +34,6 @@ public class MainActivity extends AppActivity {
     private SharedPreferences preferences;
     private String userId;
     private MainActivity instance;
-    private Gson g = new Gson();
     private ArrayList<EventRecommendationResponse> resp;
     private Event getEvent() {
         Event e = new Event();
@@ -51,45 +42,25 @@ public class MainActivity extends AppActivity {
         e.setCreated(new Date());
         e.setCapacity("10");
         e.setTitle(title);
-        SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        //SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
         e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
         Date d = null;
-        try {
-            d = sd.parse("22.03.1990 11:11");
-        } catch (ParseException e1) {
-            e1.printStackTrace();
-        }
+        d = new Date(System.currentTimeMillis() % 1000+2000);
         e.setStart_date(d);
-
         Calendar cal = Calendar.getInstance();
         cal.setTime(d);
         cal.add(Calendar.HOUR, 2);
         Date oneHourBack = cal.getTime();
         e.setEnd_date(oneHourBack);
-
         return e;
-    }
-
-    private List<Event> jsonToEventList(String json)
-    {
-        Event[] events = g.fromJson(json,Event[].class);
-        return new ArrayList<>(Arrays.asList(events));
-    }
-    private String eventListToJson(ArrayList<Event> list)
-    {
-        return g.toJson(list);
     }
 
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
 
         userId= "572312a8e4b0d25de0692eea";
+
         instance = this;
-        Event e = getEvent();
-        String myjsonevent = new Gson().toJson(e);
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(GlobalsettingsKeys.userEventsAccepted,myjsonevent);
-        edit.commit();
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -115,25 +86,29 @@ public class MainActivity extends AppActivity {
             public void OnSuccess(String s) {
                 if(s!=null)
                 {
+                    getSharedPreferences("global_settings", MODE_PRIVATE);
                     try
                     {
-                        // Creates the json object which will manage the information received
-                        GsonBuilder builder = new GsonBuilder();
-                        builder.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                        // Register an adapter to manage the date types as long values
-                        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-                            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-                                Date d = new Date(json.getAsLong());
-                                return d;
-                            }
-                        });
-                        builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
-                        Gson gson = builder.create();
-                        EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
-                        Log.i("fertig",r.length+"");
-                        resp = new ArrayList<>(Arrays.asList(r));
+                        resp =EventHelper.jsonToEventList(s);
+                    /*    ArrayList<EventRatingTransfer> x = new ArrayList<>();
+                        for (EventRecommendationResponse res:
+                                r) {
+                            x.add(new EventRatingTransfer(res.getEvent().getEventID(),res.getEvent().getEnd_date(),res.getEvent().getCreated(),res.getEvent().getStart_date(),res.getEvent().getTitle(),res.getEvent().getDescription()));
+                        }
+                        String json = EventHelper.eventTransferListToJson(x);
+                        SharedPreferences.Editor editor =prefs.edit();
+                        editor.putString(GlobalsettingsKeys.userEventsAccepted,json);
+                        editor.commit();
+                        String newJson = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+                        x =EventHelper.jsonToEventTransferList(newJson);
+                        Log.i("fertig",r.size()+"");
+*/
+                        SharedPreferences.Editor edit = prefs.edit();
+                        edit.putString(GlobalsettingsKeys.userEventsAccepted,"");
+                        edit.commit();
+                        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"","");
+                        edit.apply();
 
-                        checkPrevious();
 
                         ArrayAdapterItem adapter = null;
                         try
@@ -210,15 +185,15 @@ public class MainActivity extends AppActivity {
                             }
                             else
                             {
-                                e=(ArrayList<Event>) jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
+                                //    e= jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
                                 if(e.contains(r.getEvent()))
                                     continue;
                             }
                             e.add(r.getEvent());
                             SharedPreferences.Editor edit = prefs.edit();
-                            edit.putString(GlobalsettingsKeys.userEventsAccepted,eventListToJson(e));
-                            edit.commit();
-                            edit.apply();
+                            //edit.putString(GlobalsettingsKeys.userEventsAccepted,eventListToJson(e));
+                            //edit.commit();
+                           // edit.apply();
                         }
 
                     }

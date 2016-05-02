@@ -90,13 +90,6 @@ public class MainActivity extends AppActivity {
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString(GlobalsettingsKeys.userEventsAccepted,myjsonevent);
         edit.commit();
-      //  globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"",myjsonevent);
-       /* edit.apply();
-        myjsonevent = "";
-        myjsonevent = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
-        e = null;
-        e = new Gson().fromJson(myjsonevent,Event.class);*/
-
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -142,7 +135,6 @@ public class MainActivity extends AppActivity {
 
                         checkPrevious();
 
-
                         ArrayAdapterItem adapter = null;
                         try
                         {
@@ -182,7 +174,6 @@ public class MainActivity extends AppActivity {
                                 EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
                                 Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
                                 DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-
                                 i.putExtra("userId",userId);
                                 i.putExtra("eventTitle",entry.getEvent().getTitle());
                                 i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
@@ -220,6 +211,8 @@ public class MainActivity extends AppActivity {
                             else
                             {
                                 e=(ArrayList<Event>) jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
+                                if(e.contains(r.getEvent()))
+                                    continue;
                             }
                             e.add(r.getEvent());
                             SharedPreferences.Editor edit = prefs.edit();

@@ -21,12 +21,16 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import eu.alfred.api.personalization.model.eventrecommendation.Event;
+import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
 import eu.alfred.api.personalization.model.eventrecommendation.RecommendationReason;
 import eu.alfred.ui.AppActivity;
 
@@ -114,16 +118,13 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
                 values.put(CalendarContract.Events.TITLE, eventTitle);
                 values.put(CalendarContract.Events.DESCRIPTION, eventDescription);
                 values.put(CalendarContract.Events.CALENDAR_ID, date.getTime());
-
                 values.put(CalendarContract.Events.EVENT_TIMEZONE, tz.getDisplayName());
 
 
                 addToCalendar(cr,values);
+                storeEventForRating(eventId);
                 eventrecommendationManager.acceptRejectEvent(userId,eventId,true);
                 Toast.makeText(EventDetailsActivity.this,"Applied", Toast.LENGTH_SHORT).show();
-                /*Intent i = new Intent(EventDetailsActivity.this, MainActivity.class);
-                i.putExtra("eventAccept",eventId);
-                startActivity(i);*/
                 EventDetailsActivity.this.finish();
             }
         };
@@ -140,6 +141,32 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
 
         btn_DontGo.setOnClickListener(dontGoHandler);
         btn_go.setOnClickListener(goHandler);
+    }
+    private void storeEventForRating(String eventId) {
+            List<Event> resp = EventHelper.jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
+           // final String eventId = getIntent().getExtras().get("eventAccept").toString();
+            for (final Event r: resp) {
+                if(r.getEventID().equals(eventId))
+                {
+                    String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+                    ArrayList<Event> e;
+                    if(json.equals(""))
+                    {
+                        e = new ArrayList<>();
+                    }
+                    else
+                    {
+                        e=(ArrayList<Event>) EventHelper.jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
+                        if(e.contains(r))
+                            continue;
+                    }
+                    e.add(r);
+                    SharedPreferences.Editor edit = prefs.edit();
+                    edit.putString(GlobalsettingsKeys.userEventsAccepted,EventHelper.eventListToJson(e));
+                    edit.commit();
+                    edit.apply();
+                }
+            }
     }
     private void addToCalendar(ContentResolver cr, ContentValues values)
     {

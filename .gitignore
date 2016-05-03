@@ -63,15 +63,16 @@ showGitLog.sh
 >>>>>>> 9e1b93afd182b687deb9dbb98efc01bb01e3cb29
 
 # Sensitive or high-churn files:
-# .idea/dataSources.ids
-# .idea/dataSources.xml
-# .idea/sqlDataSources.xml
-# .idea/dynamic.xml
-# .idea/uiDesigner.xml
-
+ .idea/dataSources.ids
+ .idea/dataSources.xml
+ .idea/sqlDataSources.xml
+ .idea/dynamic.xml
+ .idea/uiDesigner.xml
+ .idea/*
+ local.properties
 # Gradle:
-# .idea/gradle.xml
-# .idea/libraries
+ .idea/gradle.xml
+ .idea/libraries
 
 # Mongo Explorer plugin:
 # .idea/mongoSettings.xml

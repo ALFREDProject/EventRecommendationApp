@@ -1,5 +1,7 @@
 package alfred.eu.eventrecommendationapp;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,10 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
+import alfred.eu.eventrecommendationapp.adapters.UserIdAdapter;
+import alfred.eu.eventrecommendationapp.listeners.OnItemClickListenerListViewItem;
 import eu.alfred.api.personalization.helper.eventrecommendation.EventHelper;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
@@ -36,6 +43,8 @@ public class MainActivity extends AppActivity {
     private View loadingProgress ;
     private MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
+    private AlertDialog alertDialogStores;
+
     private Event getEvent() {
         Event e = new Event();
         String title = "MzFandzEvent";
@@ -60,9 +69,108 @@ public class MainActivity extends AppActivity {
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
 
         userId= "572312a8e4b0d25de0692eea";
+        String[] ids = new String[10];
+        ids[0] = "5728f948e4b0bd6603c8a9d1";
+        ids[1] = "5728f948e4b0bd6603c8a9d2";
+        ids[2] = "5728f948e4b0bd6603c8a9d3";
+        ids[3] = "5728f948e4b0bd6603c8a9d4";
+        ids[4] = "5728f949e4b0bd6603c8a9d5";
+        ids[5] = "5728f949e4b0bd6603c8a9d6";
+        ids[6] = "5728f949e4b0bd6603c8a9d7";
+        ids[7] = "5728f949e4b0bd6603c8a9d8";
+        ids[8] = "5728f949e4b0bd6603c8a9d9";
+        ids[9] = "5728f949e4b0bd6603c8a9da";
+
+        UserIdAdapter adapter = new UserIdAdapter(this, R.layout.list_view_row_item_userid, ids);
+        ListView listViewItems = new ListView(this);
+        listViewItems.setAdapter(adapter);
+        listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Context context = view.getContext();
+                TextView textViewItem = ((TextView) view.findViewById(R.id.textViewItem));
+                SharedPreferences.Editor edit = prefs.edit();
+                if(textViewItem != null && textViewItem.getText()!="")
+                edit.putString(GlobalsettingsKeys.userId,textViewItem.getText().toString());
+                edit.commit();
+                globalSettings.setGlobalSetting(GlobalsettingsKeys.userId+"","");
+                edit.apply();
+                getRecommendations();
+                ((MainActivity) context).alertDialogStores.cancel();
+            }
+        });
+
+        // put the ListView in the pop up
+        alertDialogStores=  new AlertDialog.Builder(MainActivity.this)
+                .setView(listViewItems)
+                .setTitle("Available userIds")
+                .show();
+
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
-                instance = this;
+        instance = this;
+
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+        circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
+        circleButton.setOnTouchListener(new CircleTouchListener());
+    }
+    @Override
+    public void performAction(String command, Map<String, String> map) {
+
+        //Add custom events here
+        switch (command) {
+            case (GET_RECOMMENDATIONS_FOR_USER):
+                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade,eventrecommendationManager);
+                cta.performAction(command, map);
+                break;
+
+            default:
+                break;
+        }
+        cade.sendActionResult(true);
+    }
+
+    @Override
+    public void performWhQuery(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performValidity(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void performEntityRecognizer(String s, Map<String, String> map) {
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+      /*  // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://alfred.eu.eventrecommendationapp/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();*/
+    }
+
+    public void getRecommendations() {
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -182,7 +290,7 @@ public class MainActivity extends AppActivity {
                             SharedPreferences.Editor edit = prefs.edit();
                             //edit.putString(GlobalsettingsKeys.userEventsAccepted,eventListToJson(e));
                             //edit.commit();
-                           // edit.apply();
+                            // edit.apply();
                         }
 
                     }
@@ -195,63 +303,5 @@ public class MainActivity extends AppActivity {
             }
         });
 
-    }
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_main);
-        circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
-        circleButton.setOnTouchListener(new CircleTouchListener());
-    }
-    @Override
-    public void performAction(String command, Map<String, String> map) {
-
-        //Add custom events here
-        switch (command) {
-            case (GET_RECOMMENDATIONS_FOR_USER):
-                GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade,eventrecommendationManager);
-                cta.performAction(command, map);
-                break;
-
-            default:
-                break;
-        }
-        cade.sendActionResult(true);
-    }
-
-    @Override
-    public void performWhQuery(String s, Map<String, String> map) {
-
-    }
-
-    @Override
-    public void performValidity(String s, Map<String, String> map) {
-
-    }
-
-    @Override
-    public void performEntityRecognizer(String s, Map<String, String> map) {
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-      /*  // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://alfred.eu.eventrecommendationapp/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();*/
     }
 }

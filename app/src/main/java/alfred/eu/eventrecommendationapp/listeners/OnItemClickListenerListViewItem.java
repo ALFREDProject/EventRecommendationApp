@@ -1,6 +1,7 @@
 package alfred.eu.eventrecommendationapp.listeners;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import alfred.eu.eventrecommendationapp.MainActivity;
 import alfred.eu.eventrecommendationapp.R;
+import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
 
 /**
  * Created by thardes on 25/04/2016.
@@ -18,7 +20,7 @@ public class OnItemClickListenerListViewItem implements OnItemClickListener {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-   /*     Context context = view.getContext();
+       Context context = view.getContext();
 
         TextView textViewItem = ((TextView) view.findViewById(R.id.txt_eventTitle));
 
@@ -31,7 +33,6 @@ public class OnItemClickListenerListViewItem implements OnItemClickListener {
         // just toast it
         Toast.makeText(context, "Item: " + listItemText + ", Item ID: " + listItemId, Toast.LENGTH_SHORT).show();
 
-        ((MainActivity) context).alertDialogStores.cancel();*/
 
     }
 

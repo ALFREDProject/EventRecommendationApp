@@ -149,15 +149,20 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
     private void storeEventForRating(String eventId) {
         String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
         ArrayList<EventRatingTransfer> x  =EventHelper.jsonToEventTransferList(json);
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat("yyyy.MM.dd");
+        boolean found = false;
         for (EventRatingTransfer r: x) {
             if(r.getEventID().equals(eventId))
             {
-                try {
-                    x.add(new EventRatingTransfer(eventId,format.parse(eventEndDate),format.parse(eventStartDate),format.parse(eventStartDate),eventTitle,eventDescription));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+             found = true;
+            }
+        }
+        if(!found)
+        {
+            try {
+                x.add(new EventRatingTransfer(eventId,format.parse(eventEndDate),format.parse(eventStartDate),format.parse(eventStartDate),eventTitle,eventDescription));
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
         }
         SharedPreferences.Editor edit = prefs.edit();
@@ -165,7 +170,6 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
         edit.commit();
         globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"",EventHelper.eventTransferListToJson(x));
         edit.apply();
-
     }
     private void addToCalendar(ContentResolver cr, ContentValues values)
     {

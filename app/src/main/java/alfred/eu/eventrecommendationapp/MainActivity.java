@@ -33,6 +33,7 @@ public class MainActivity extends AppActivity {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
     private String userId;
+    private View loadingProgress ;
     private MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
     private Event getEvent() {
@@ -59,8 +60,9 @@ public class MainActivity extends AppActivity {
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
 
         userId= "572312a8e4b0d25de0692eea";
-
-        instance = this;
+        loadingProgress = findViewById(R.id.loadingAnimation);
+        loadingProgress.setVisibility(View.VISIBLE);
+                instance = this;
         eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -90,25 +92,12 @@ public class MainActivity extends AppActivity {
                     try
                     {
                         resp =EventHelper.jsonToEventList(s);
-                    /*    ArrayList<EventRatingTransfer> x = new ArrayList<>();
-                        for (EventRecommendationResponse res:
-                                r) {
-                            x.add(new EventRatingTransfer(res.getEvent().getEventID(),res.getEvent().getEnd_date(),res.getEvent().getCreated(),res.getEvent().getStart_date(),res.getEvent().getTitle(),res.getEvent().getDescription()));
-                        }
-                        String json = EventHelper.eventTransferListToJson(x);
-                        SharedPreferences.Editor editor =prefs.edit();
-                        editor.putString(GlobalsettingsKeys.userEventsAccepted,json);
-                        editor.commit();
-                        String newJson = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
-                        x =EventHelper.jsonToEventTransferList(newJson);
-                        Log.i("fertig",r.size()+"");
-*/
                         SharedPreferences.Editor edit = prefs.edit();
                         edit.putString(GlobalsettingsKeys.userEventsAccepted,"");
                         edit.commit();
                         globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"","");
                         edit.apply();
-
+                        loadingProgress.setVisibility(View.INVISIBLE);
 
                         ArrayAdapterItem adapter = null;
                         try

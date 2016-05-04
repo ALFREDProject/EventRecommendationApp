@@ -39,7 +39,6 @@ release.properties
 # show git log script
 showGitLog.sh
 
-<<<<<<< HEAD
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
 =======
@@ -100,4 +99,3 @@ crashlytics-build.properties
 fabric.properties
 
 =======
->>>>>>> 9e1b93afd182b687deb9dbb98efc01bb01e3cb29

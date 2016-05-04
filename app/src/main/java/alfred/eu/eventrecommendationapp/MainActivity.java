@@ -29,6 +29,7 @@ import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import alfred.eu.eventrecommendationapp.adapters.UserIdAdapter;
 import alfred.eu.eventrecommendationapp.listeners.OnItemClickListenerListViewItem;
 import eu.alfred.api.personalization.helper.eventrecommendation.EventHelper;
+import eu.alfred.api.personalization.helper.eventrecommendation.EventRatingTransfer;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
@@ -91,7 +92,7 @@ public class MainActivity extends AppActivity {
                 TextView textViewItem = ((TextView) view.findViewById(R.id.textViewItem));
                 SharedPreferences.Editor edit = prefs.edit();
                 if(textViewItem != null && textViewItem.getText()!="")
-                edit.putString(GlobalsettingsKeys.userId,textViewItem.getText().toString());
+                    edit.putString(GlobalsettingsKeys.userId,textViewItem.getText().toString());
                 edit.commit();
                 globalSettings.setGlobalSetting(GlobalsettingsKeys.userId+"","");
                 edit.apply();
@@ -199,12 +200,30 @@ public class MainActivity extends AppActivity {
                     getSharedPreferences("global_settings", MODE_PRIVATE);
                     try
                     {
+                        String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
+                        ArrayList<EventRatingTransfer> eventsTobeRated = EventHelper.jsonToEventTransferList(json);
+
+
                         resp =EventHelper.jsonToEventList(s);
-                        SharedPreferences.Editor edit = prefs.edit();
+                        if(resp.size()!=0)
+                        {
+                            for(EventRatingTransfer ert: eventsTobeRated)
+                            {
+
+                                for (EventRecommendationResponse r : resp) {
+                                    if(r.getEvent().getEventID() == ert.getEventID())
+                                    {
+                                        resp.remove(r);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                       /* SharedPreferences.Editor edit = prefs.edit();
                         edit.putString(GlobalsettingsKeys.userEventsAccepted,"");
                         edit.commit();
                         globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"","");
-                        edit.apply();
+                        edit.apply();*/
                         loadingProgress.setVisibility(View.INVISIBLE);
 
                         ArrayAdapterItem adapter = null;

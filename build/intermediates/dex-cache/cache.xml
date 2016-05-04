@@ -1,12 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" >
+<items version="2" />
 
-    <item
-        jar="C:\Users\Gary\AndroidStudioProjects\ALFRED\eventrecommendationapp\app\build\intermediates\exploded-aar\eu.alfred.personalassistant.sharedlibrary\PersonalAssistantShared-debug\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.1"
-        sha1="1dce39b4c1e4a81ff5db586b0486a74ecf1d2bbf">
-        <dex dex="C:\Users\Gary\AndroidStudioProjects\ALFRED\eventrecommendationapp\app\build\intermediates\pre-dexed\debug\exploded-aar-eu.alfred.personalassistant.sharedlibrary-PersonalAssistantShared-debug_93d9840eb0d2a632deba9eeccbd9ad185c97488e.jar" />
-    </item>
-
-</items>

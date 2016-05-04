@@ -71,16 +71,17 @@ public class MainActivity extends AppActivity {
 
         userId= "572312a8e4b0d25de0692eea";
         String[] ids = new String[10];
-        ids[0] = "5728f948e4b0bd6603c8a9d1";
-        ids[1] = "5728f948e4b0bd6603c8a9d2";
-        ids[2] = "5728f948e4b0bd6603c8a9d3";
-        ids[3] = "5728f948e4b0bd6603c8a9d4";
-        ids[4] = "5728f949e4b0bd6603c8a9d5";
-        ids[5] = "5728f949e4b0bd6603c8a9d6";
-        ids[6] = "5728f949e4b0bd6603c8a9d7";
-        ids[7] = "5728f949e4b0bd6603c8a9d8";
-        ids[8] = "5728f949e4b0bd6603c8a9d9";
-        ids[9] = "5728f949e4b0bd6603c8a9da";
+
+        ids[0] = "5729ec7fe4b0bd6603c8a9e5";
+        ids[1] = "5729ec7fe4b0bd6603c8a9e6";
+        ids[2] = "5729ec7fe4b0bd6603c8a9e7";
+        ids[3] = "5729ec7fe4b0bd6603c8a9e8";
+        ids[4] = "5729ec7fe4b0bd6603c8a9e9";
+        ids[5] = "5729ec7fe4b0bd6603c8a9ea";
+        ids[6] = "5729ec7fe4b0bd6603c8a9eb";
+        ids[7] = "5729ec7fe4b0bd6603c8a9ec";
+        ids[8] = "5729ec7fe4b0bd6603c8a9ed";
+        ids[9] = "5729ec7fe4b0bd6603c8a9ee";
 
         UserIdAdapter adapter = new UserIdAdapter(this, R.layout.list_view_row_item_userid, ids);
         ListView listViewItems = new ListView(this);
@@ -92,7 +93,9 @@ public class MainActivity extends AppActivity {
                 TextView textViewItem = ((TextView) view.findViewById(R.id.textViewItem));
                 SharedPreferences.Editor edit = prefs.edit();
                 if(textViewItem != null && textViewItem.getText()!="")
-                    edit.putString(GlobalsettingsKeys.userId,textViewItem.getText().toString());
+                {   edit.putString(GlobalsettingsKeys.userId,textViewItem.getText().toString());
+                    userId = textViewItem.getText().toString();
+                }
                 edit.commit();
                 globalSettings.setGlobalSetting(GlobalsettingsKeys.userId+"","");
                 edit.apply();

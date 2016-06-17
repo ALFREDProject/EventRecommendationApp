@@ -2,6 +2,7 @@ package alfred.eu.eventrecommendationapp;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -38,7 +39,6 @@ import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity implements ICadeCommand {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
-    private SharedPreferences preferences;
     private String userId;
     private View loadingProgress ;
     private MainActivity instance;
@@ -67,9 +67,35 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
+        getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
+        String userId = prefs.getString(GlobalsettingsKeys.userId,"");
+        this.userId = "573043c7e4b0bd6603c8a9fe";//TODO Remove this shit
+        /*SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(GlobalsettingsKeys.userEventsAccepted,"");
+        edit.commit();
+        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted,"");
+        edit.apply();*/
+         if(userId=="")
+        {
+            new AlertDialog.Builder(this)
+                    .setTitle("Not logged in")
+                    .setMessage("Please login to use eventrecommendations by using the ProfileEditorApp")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            System.exit(0);
+                        }
+                    })
 
-        userId= "572312a8e4b0d25de0692eea";
-        String[] ids = new String[10];
+                    /*.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })*/
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+        //  userId= "572312a8e4b0d25de0692eea";
+      /*  String[] ids = new String[10];
 
         ids[0] = "573043c7e4b0bd6603c8a9fe";
         ids[1] = "573043c7e4b0bd6603c8a9ff";
@@ -80,9 +106,9 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         ids[6] = "573043c7e4b0bd6603c8aa04";
         ids[7] = "573043c7e4b0bd6603c8aa05";
         ids[8] = "573043c7e4b0bd6603c8aa06";
-        ids[9] = "573043c7e4b0bd6603c8aa07";
+        ids[9] = "573043c7e4b0bd6603c8aa07";*/
 
-        UserIdAdapter adapter = new UserIdAdapter(this, R.layout.list_view_row_item_userid, ids);
+/*        UserIdAdapter adapter = new UserIdAdapter(this, R.layout.list_view_row_item_userid, ids);
         ListView listViewItems = new ListView(this);
         listViewItems.setAdapter(adapter);
         listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,13 +127,16 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                 getRecommendations();
                 ((MainActivity) context).alertDialogStores.cancel();
             }
-        });
+        });*/
 
-        // put the ListView in the pop up
+ /*       // put the ListView in the pop up
         alertDialogStores=  new AlertDialog.Builder(MainActivity.this)
                 .setView(listViewItems)
                 .setTitle("Available userIds")
-                .show();
+                .show();*/
+
+
+        getRecommendations();
 
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
@@ -215,7 +244,6 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         {
                             for(EventRatingTransfer ert: eventsTobeRated)
                             {
-
                                 for (EventRecommendationResponse r : resp) {
                                     if(r.getEvent().getEventID() == ert.getEventID())
                                     {
@@ -225,39 +253,47 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 }
                             }
                         }
-                       /* SharedPreferences.Editor edit = prefs.edit();
-                        edit.putString(GlobalsettingsKeys.userEventsAccepted,"");
-                        edit.commit();
-                        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted+"","");
-                        edit.apply();*/
                         loadingProgress.setVisibility(View.INVISIBLE);
-
                         ArrayAdapterItem adapter = null;
                         try
                         {
-                            /***Clean response**/
-                            for (Object o : resp.toArray()) {
-                                EventRecommendationResponse entry = (EventRecommendationResponse)o;
-                                /*** START: Remove useless entries ***/
-                                if(entry.getEvent().getTitle()==null || entry.getEvent().getTitle()==""||entry.getEvent().getDescription()==null || entry.getEvent().getDescription()==""||entry.getEvent().getVenue().getPostal_code()==null||entry.getEvent().getVenue().getPostal_code()=="")
-                                {
-                                    Log.i("----Content check----","Something is completely wrong here");
-                                    resp.remove(o);
-                                    continue;
+                            if(resp.size()==0)
+                            {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        findViewById(R.id.noEvents).setVisibility(View.VISIBLE);
+                                        findViewById(R.id.loadingAnimation).setVisibility(View.INVISIBLE);
+                                        findViewById(R.id.lwitem).setVisibility(View.INVISIBLE);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                /***Clean response**/
+                                for (Object o : resp.toArray()) {
+                                    EventRecommendationResponse entry = (EventRecommendationResponse)o;
+                                    /*** START: Remove useless entries ***/
+                                    if(entry.getEvent().getTitle()==null || entry.getEvent().getTitle()==""||entry.getEvent().getDescription()==null || entry.getEvent().getDescription()==""||entry.getEvent().getVenue().getPostal_code()==null||entry.getEvent().getVenue().getPostal_code()=="")
+                                    {
+                                        Log.i("----Content check----","Something is completely wrong here");
+                                        resp.remove(o);
+                                        continue;
+                                    }
+                                    /*** END: Remove useless entries ***/
+                                    Log.i("-------Title-------",entry.getEvent().getTitle());
                                 }
-                                /*** END: Remove useless entries ***/
-                                Log.i("-------Title-------",entry.getEvent().getTitle());
+                                EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
+                                int runningIndex = 0;
+                                for (Object o : resp.toArray()) {
+                                    EventRecommendationResponse entry = (EventRecommendationResponse)o;
+                                    Log.i("-------Title-------",entry.getEvent().getTitle());
+                                    array[runningIndex] = entry;
+                                    runningIndex++;
+                                }
+                                Log.i("done: ","runningIndex is "+ runningIndex);
+                                adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
                             }
-                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
-                            int runningIndex = 0;
-                            for (Object o : resp.toArray()) {
-                                EventRecommendationResponse entry = (EventRecommendationResponse)o;
-                                Log.i("-------Title-------",entry.getEvent().getTitle());
-                                array[runningIndex] = entry;
-                                runningIndex++;
-                            }
-                            Log.i("done: ","runningIndex is "+ runningIndex);
-                            adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
                         }
                         catch (Exception except)
                         {

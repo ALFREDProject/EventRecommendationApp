@@ -10,9 +10,10 @@
         android:indeterminate="true" android:id="@+id/loadingAnimation" />
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/lwitem"></ListView>
 
     <include layout="@layout/voice_btn_layout" android:visibility="visible" />
+    <include layout="@layout/noevents" android:id="@+id/noEvents" android:visibility="invisible" />
 
 </RelativeLayout>

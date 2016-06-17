@@ -20,24 +20,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import alfred.eu.eventrecommendationapp.adapters.UserIdAdapter;
-import alfred.eu.eventrecommendationapp.listeners.OnItemClickListenerListViewItem;
 import eu.alfred.api.personalization.helper.eventrecommendation.EventHelper;
 import eu.alfred.api.personalization.helper.eventrecommendation.EventRatingTransfer;
 import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
 import eu.alfred.api.personalization.responses.PersonalizationResponse;
+import eu.alfred.api.proxies.interfaces.ICadeCommand;
 import eu.alfred.ui.AppActivity;
+import eu.alfred.ui.BackToPAButton;
 import eu.alfred.ui.CircleButton;
 
-public class MainActivity extends AppActivity {
+public class MainActivity extends AppActivity implements ICadeCommand {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private SharedPreferences preferences;
     private String userId;
@@ -120,8 +119,12 @@ public class MainActivity extends AppActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        circleButton = (CircleButton) findViewById(R.id.voiceControlBtn); circleButton.setOnTouchListener(new CircleTouchListener());
-        circleButton.setOnTouchListener(new CircleTouchListener());
+
+        circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
+        circleButton.setOnTouchListener(new MicrophoneTouchListener());
+
+        backToPAButton = (BackToPAButton) findViewById(R.id.backControlBtn);
+        backToPAButton.setOnTouchListener(new BackTouchListener());
     }
     @Override
     public void performAction(String command, Map<String, String> map) {

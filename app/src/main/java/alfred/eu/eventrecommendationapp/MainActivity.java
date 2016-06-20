@@ -43,38 +43,12 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     private View loadingProgress ;
     private MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
-    private AlertDialog alertDialogStores;
-
-    private Event getEvent() {
-        Event e = new Event();
-        String title = "MzFandzEvent";
-        e.setDescription("Description: "+title);
-        e.setCreated(new Date());
-        e.setCapacity("10");
-        e.setTitle(title);
-        //SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        e.setCategories(Arrays.asList(new String[] {"sports","golf"}));//Change
-        Date d = null;
-        d = new Date(System.currentTimeMillis() % 1000+2000);
-        e.setStart_date(d);
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(d);
-        cal.add(Calendar.HOUR, 2);
-        Date oneHourBack = cal.getTime();
-        e.setEnd_date(oneHourBack);
-        return e;
-    }
-
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
         getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
         String userId = prefs.getString(GlobalsettingsKeys.userId,"");
-        this.userId = "573043c7e4b0bd6603c8a9fe";//TODO Remove this shit
-        /*SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(GlobalsettingsKeys.userEventsAccepted,"");
-        edit.commit();
-        globalSettings.setGlobalSetting(GlobalsettingsKeys.userEventsAccepted,"");
-        edit.apply();*/
+        this.userId = "5767ed76e4b00103c2b8f10e";//TODO Reasdasdmove this shit
+
          if(userId=="")
         {
             new AlertDialog.Builder(this)
@@ -85,59 +59,10 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                             System.exit(0);
                         }
                     })
-
-                    /*.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // do nothing
-                        }
-                    })*/
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-        //  userId= "572312a8e4b0d25de0692eea";
-      /*  String[] ids = new String[10];
-
-        ids[0] = "573043c7e4b0bd6603c8a9fe";
-        ids[1] = "573043c7e4b0bd6603c8a9ff";
-        ids[2] = "573043c7e4b0bd6603c8aa00";
-        ids[3] = "573043c7e4b0bd6603c8aa01";
-        ids[4] = "573043c7e4b0bd6603c8aa02";
-        ids[5] = "573043c7e4b0bd6603c8aa03";
-        ids[6] = "573043c7e4b0bd6603c8aa04";
-        ids[7] = "573043c7e4b0bd6603c8aa05";
-        ids[8] = "573043c7e4b0bd6603c8aa06";
-        ids[9] = "573043c7e4b0bd6603c8aa07";*/
-
-/*        UserIdAdapter adapter = new UserIdAdapter(this, R.layout.list_view_row_item_userid, ids);
-        ListView listViewItems = new ListView(this);
-        listViewItems.setAdapter(adapter);
-        listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Context context = view.getContext();
-                TextView textViewItem = ((TextView) view.findViewById(R.id.textViewItem));
-                SharedPreferences.Editor edit = prefs.edit();
-                if(textViewItem != null && textViewItem.getText()!="")
-                {   edit.putString(GlobalsettingsKeys.userId,textViewItem.getText().toString());
-                    userId = textViewItem.getText().toString();
-                }
-                edit.commit();
-                globalSettings.setGlobalSetting(GlobalsettingsKeys.userId+"","");
-                edit.apply();
-                getRecommendations();
-                ((MainActivity) context).alertDialogStores.cancel();
-            }
-        });*/
-
- /*       // put the ListView in the pop up
-        alertDialogStores=  new AlertDialog.Builder(MainActivity.this)
-                .setView(listViewItems)
-                .setTitle("Available userIds")
-                .show();*/
-
-
         getRecommendations();
-
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
         instance = this;
@@ -274,7 +199,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 for (Object o : resp.toArray()) {
                                     EventRecommendationResponse entry = (EventRecommendationResponse)o;
                                     /*** START: Remove useless entries ***/
-                                    if(entry.getEvent().getTitle()==null || entry.getEvent().getTitle()==""||entry.getEvent().getDescription()==null || entry.getEvent().getDescription()==""||entry.getEvent().getVenue().getPostal_code()==null||entry.getEvent().getVenue().getPostal_code()=="")
+                                    if(entry.getEvent().getTitle()==null ||entry.getEvent().getDescription()==null || entry.getEvent().getVenue().getPostal_code()==null)
                                     {
                                         Log.i("----Content check----","Something is completely wrong here");
                                         resp.remove(o);

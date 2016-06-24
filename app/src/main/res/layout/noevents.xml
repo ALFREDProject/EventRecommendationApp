@@ -12,11 +12,9 @@
       android:id="@+id/eins">
         <TextView android:layout_width="match_parent" android:layout_height="match_parent"
             android:text="Sorry we have no events for you. This could have different causes:" />
-
-        <TextView android:layout_width="match_parent" android:layout_height="match_parent"
+     <TextView android:layout_width="match_parent" android:layout_height="match_parent"
             android:text="Probably you haven't filled your userProfile with information yet. Eventrecommendations are based on various entries like your place of residence, interesets, friends, and so on." />
-
-        </LinearLayout>
+    </LinearLayout>
 
 
    </RelativeLayout>

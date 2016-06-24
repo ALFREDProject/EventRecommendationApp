@@ -1,34 +1,40 @@
 package alfred.eu.eventrecommendationapp;
 
-import android.app.AlertDialog;
-import android.content.Context;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
-import alfred.eu.eventrecommendationapp.adapters.UserIdAdapter;
-import eu.alfred.api.personalization.helper.eventrecommendation.EventHelper;
-import eu.alfred.api.personalization.helper.eventrecommendation.EventRatingTransfer;
-import eu.alfred.api.personalization.model.eventrecommendation.Event;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
 import eu.alfred.api.personalization.responses.PersonalizationResponse;
@@ -41,16 +47,18 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private String userId;
     private View loadingProgress ;
+
     private MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
         getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
         String userId = prefs.getString(GlobalsettingsKeys.userId,"");
-        this.userId = "5767ed76e4b00103c2b8f10e";//TODO Reasdasdmove this shit
+        this.userId = "573043c8e4b0bd6603c8aa05";//TODO Reasdasdmove this shit
 
-         if(userId=="")
+      if(this.userId.equals(""))
         {
+
             new AlertDialog.Builder(this)
                     .setTitle("Not logged in")
                     .setMessage("Please login to use eventrecommendations by using the ProfileEditorApp")
@@ -62,10 +70,25 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-        getRecommendations();
+        getRecommendations(false);
+        instance = this;
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
-        instance = this;
+
+        /*this.runOnUiThread(new Runnable() {
+            public void run() {
+                Timer timer = new Timer ();
+                TimerTask hourlyTask = new TimerTask() {
+                    @Override
+                    public void run () {
+                        getRecommendations(true);
+                    }
+                };
+                timer.schedule (hourlyTask, 0l, 1000*60*60);   // 1000*10*60 every 10 minut
+            }
+        });*/
+
+        showEventNotification();
 
     }
     @Override
@@ -114,136 +137,102 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     @Override
     public void onStop() {
         super.onStop();
-
-      /*  // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://alfred.eu.eventrecommendationapp/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();*/
     }
 
-    public void getRecommendations() {
-        eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
+    public void getRecommendations(final boolean isFriendsOnly) {
+        eventrecommendationManager.getRecommendations(userId,isFriendsOnly, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
-                if(jsonObject!=null)
-                {
-                }
+
             }
 
             @Override
-            public void OnSuccess(JSONArray jsonArray) {
-                if(jsonArray!=null)
-                {
-                }
-            }
+            public void OnSuccess(JSONArray jsonArray) {}
 
             @Override
-            public void OnSuccess(Object o) {
-                if(o!=null)
-                {
-                }
-            }
+            public void OnSuccess(Object o) {}
             @Override
             public void OnSuccess(String s) {
+
                 if(s!=null)
                 {
-                    getSharedPreferences("global_settings", MODE_PRIVATE);
                     try
                     {
-                        String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
-                        ArrayList<EventRatingTransfer> eventsTobeRated = EventHelper.jsonToEventTransferList(json);
-
-
-                        resp =EventHelper.jsonToEventList(s);
-                        if(resp.size()!=0)
-                        {
-                            for(EventRatingTransfer ert: eventsTobeRated)
-                            {
-                                for (EventRecommendationResponse r : resp) {
-                                    if(r.getEvent().getEventID() == ert.getEventID())
-                                    {
-                                        resp.remove(r);
-                                        break;
-                                    }
-                                }
+                        // Creates the json object which will manage the information received
+                        GsonBuilder builder = new GsonBuilder();
+                        builder.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                        // Register an adapter to manage the date types as long values
+                        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+                                Date d = new Date(json.getAsLong());
+                                return d;
                             }
+                        });
+                        builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
+                        Gson gson = builder.create();
+                        EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
+                        Log.i("fertig",r.length+"");
+                        resp = new ArrayList<>(Arrays.asList(r));
+                        if(resp.size()==0)
+                        {
+                            loadingProgress = findViewById(R.id.loadingAnimation);
+
+                            instance.runOnUiThread(new Runnable(){
+                                @Override
+                                                                                                                                                                                                                                                                                                                                                                 public void run() {
+                                    View noEvent = findViewById(R.id.noEvents);
+                                    View lwitem = findViewById(R.id.lwitem);
+                                    loadingProgress.setVisibility(View.INVISIBLE);
+                                    lwitem.setVisibility(View.INVISIBLE);
+                                    noEvent.setVisibility(View.VISIBLE);
+                                } });
+                            return;
                         }
-                        loadingProgress.setVisibility(View.INVISIBLE);
+                        if(isFriendsOnly)
+                        {
+                            showEventNotification();
+                        }
                         ArrayAdapterItem adapter = null;
                         try
                         {
-                            if(resp.size()==0)
-                            {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        findViewById(R.id.noEvents).setVisibility(View.VISIBLE);
-                                        findViewById(R.id.loadingAnimation).setVisibility(View.INVISIBLE);
-                                        findViewById(R.id.lwitem).setVisibility(View.INVISIBLE);
-                                    }
-                                });
+                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
+                            int i = 0;
+                            for (Object o : resp.toArray()) {
+                                array[i] = (EventRecommendationResponse)o;
+                                i++;
                             }
-                            else
-                            {
-                                /***Clean response**/
-                                for (Object o : resp.toArray()) {
-                                    EventRecommendationResponse entry = (EventRecommendationResponse)o;
-                                    /*** START: Remove useless entries ***/
-                                    if(entry.getEvent().getTitle()==null ||entry.getEvent().getDescription()==null || entry.getEvent().getVenue().getPostal_code()==null)
-                                    {
-                                        Log.i("----Content check----","Something is completely wrong here");
-                                        resp.remove(o);
-                                        continue;
-                                    }
-                                    /*** END: Remove useless entries ***/
-                                    Log.i("-------Title-------",entry.getEvent().getTitle());
-                                }
-                                EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
-                                int runningIndex = 0;
-                                for (Object o : resp.toArray()) {
-                                    EventRecommendationResponse entry = (EventRecommendationResponse)o;
-                                    Log.i("-------Title-------",entry.getEvent().getTitle());
-                                    array[runningIndex] = entry;
-                                    runningIndex++;
-                                }
-                                Log.i("done: ","runningIndex is "+ runningIndex);
-                                adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
-                            }
+                            Log.i("Done","i is "+ i);
+                            adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
                         }
                         catch (Exception except)
                         {
                             except.printStackTrace();
                         }
-                        ListView list = (ListView)findViewById(R.id.lwitem);
+                        ListView list = (ListView)instance.findViewById(R.id.lwitem);
                         list.setAdapter(adapter);
                         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
                                 EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
-                                Intent i = new Intent(MainActivity.this, EventDetailsActivity.class);
+                                Intent i = new Intent(instance, EventDetailsActivity.class);
                                 DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-                                i.putExtra("userId",userId);
                                 i.putExtra("eventTitle",entry.getEvent().getTitle());
                                 i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
                                 i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
-                                i.putExtra("eventAddress",entry.getEvent().getVenue().getAddress()+", "+entry.getEvent().getVenue().getPostal_code()+" "+entry.getEvent().getVenue().getCity());
+                                i.putExtra("eventLocale",entry.getEvent().getLocale());
                                 i.putExtra("eventDescription",entry.getEvent().getDescription());
                                 i.putExtra("eventId",entry.getEvent().getEventID());
                                 i.putExtra("reasons",entry.getReasons());
                                 i.putExtra("weight",entry.getWeight());
-                                startActivity(i);
+                                instance.startActivity(i);
                             }
                         });
+                        loadingProgress = findViewById(R.id.loadingAnimation);
+                        instance.runOnUiThread(new Runnable(){
+                            @Override
+                            public void run() {
+                                loadingProgress.setVisibility(View.INVISIBLE);
+                            } });
                         Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
                     }
                     catch(Exception e)
@@ -252,42 +241,21 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     }
                 }
             }
-
-            private void checkPrevious() {
-                if(getIntent().getExtras()!= null && getIntent().getExtras().get("eventAccept")!=null && getIntent().getExtras().get("eventAccept")!="")
-                {
-                    final String eventId = getIntent().getExtras().get("eventAccept").toString();
-                    for (final EventRecommendationResponse r: resp) {
-                        if(r.getEvent().getEventID().equals(eventId))
-                        {
-                            String json = prefs.getString(GlobalsettingsKeys.userEventsAccepted,"");
-                            ArrayList<Event> e = null;
-                            if(json.equals(""))
-                            {
-                                e = new ArrayList<Event>();
-                            }
-                            else
-                            {
-                                //    e= jsonToEventList(prefs.getString(GlobalsettingsKeys.userEventsAccepted,""));
-                                if(e.contains(r.getEvent()))
-                                    continue;
-                            }
-                            e.add(r.getEvent());
-                            SharedPreferences.Editor edit = prefs.edit();
-                            //edit.putString(GlobalsettingsKeys.userEventsAccepted,eventListToJson(e));
-                            //edit.commit();
-                            // edit.apply();
-                        }
-
-                    }
-                }
-            }
-
             @Override
-            public void OnError(Exception e) {
-                e.printStackTrace();
-            }
+            public void OnError(Exception e) {}
         });
+    }
 
+    private void showEventNotification() {
+        Notification n  = new Notification.Builder(instance)
+                .setContentTitle("One of your friend is participating an event")
+                .setContentText("New social event")
+                .setSmallIcon(R.drawable.event_ico)
+                .build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // hide the notification after its selected
+        n.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        notificationManager.notify(0, n);
     }
 }

@@ -56,7 +56,7 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
         Integer daysToShow= Integer.parseInt(map.get("selected_event_list_size"));
         Log.i("sel_days", daysToShow+"");
 
-        eventrecommendationManager.getRecommendations(userId, new PersonalizationResponse() {
+        eventrecommendationManager.getRecommendations(userId,true, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
                 if(jsonObject!=null)
@@ -77,6 +77,7 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
                 {
                 }
             }
+
             @Override
             public void OnSuccess(String s) {
                 if(s!=null)
@@ -142,13 +143,10 @@ public class GetRecommendationsForUserAction implements ICadeCommand {
                     }
                 }
             }
-            public  <T> List<T> stringToArray(String s, Class<T[]> clazz) {
-                T[] arr = new Gson().fromJson(s, clazz);
-                return Arrays.asList(arr); //or return Arrays.asList(new Gson().fromJson(s, clazz)); for a one-liner
-            }
+
             @Override
             public void OnError(Exception e) {
-                e.printStackTrace();
+
             }
         });
     }

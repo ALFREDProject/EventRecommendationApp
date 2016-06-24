@@ -87,9 +87,6 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                 timer.schedule (hourlyTask, 0l, 1000*60*60);   // 1000*10*60 every 10 minut
             }
         });*/
-
-        showEventNotification();
-
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +213,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 EventRecommendationResponse entry = (EventRecommendationResponse) parent.getItemAtPosition(position);
                                 Intent i = new Intent(instance, EventDetailsActivity.class);
                                 DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                                i.putExtra("userId",instance.userId);
                                 i.putExtra("eventTitle",entry.getEvent().getTitle());
                                 i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
                                 i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));

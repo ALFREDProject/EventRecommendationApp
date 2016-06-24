@@ -85,7 +85,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
         eventTitle = b.get("eventTitle").toString();
         eventStartDate = b.get("eventStartDate").toString();
         eventEndDate = b.get("eventEndDate").toString();
-        eventLocale = b.get("eventAddress").toString();
+        eventLocale = b.get("eventLocale").toString();//b.get("eventAddress").toString();
         eventId = b.get("eventId").toString();
         eventDescription = b.get("eventDescription").toString();
         reasons = (EnumSet<RecommendationReason>) b.get("reasons");

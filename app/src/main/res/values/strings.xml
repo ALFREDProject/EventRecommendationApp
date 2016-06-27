@@ -7,5 +7,8 @@
     <string name="descriptionLabel"><u>Description: </u></string>
     <string name="eventTitleLabel"><u>Eventtitle: </u></string>
     <string name="eventBasedOnLabel"><u>Based on: </u></string>
+    <string name="noeventsHead"><u>Sorry we have no events for you. This could have different causes:</u></string>
+    <string name="noeventsBody"><u>Probably you haven\'t filled your user profile with information yet. Event recommendations are based on various entries like your place of residence, interests, friends, and so on.</u></string>
+
 
 </resources>

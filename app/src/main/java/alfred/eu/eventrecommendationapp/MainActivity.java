@@ -5,9 +5,6 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
@@ -54,7 +49,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
         getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
         String userId = prefs.getString(GlobalsettingsKeys.userId,"");
-        this.userId = "573043c8e4b0bd6603c8aa05";//TODO Reasdasdmove this shit
+        this.userId = "57712223e4b0d2effcb9e74f";//TODO Reasdasdmove this shit
 
       if(this.userId.equals(""))
         {
@@ -217,7 +212,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 i.putExtra("eventTitle",entry.getEvent().getTitle());
                                 i.putExtra("eventStartDate",format.format(entry.getEvent().getStart_date()));
                                 i.putExtra("eventEndDate",format.format(entry.getEvent().getEnd_date()));
-                                i.putExtra("eventLocale",entry.getEvent().getLocale());
+                                i.putExtra("eventLocale",entry.getEvent().getVenue());
                                 i.putExtra("eventDescription",entry.getEvent().getDescription());
                                 i.putExtra("eventId",entry.getEvent().getEventID());
                                 i.putExtra("reasons",entry.getReasons());

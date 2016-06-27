@@ -5,10 +5,16 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -27,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
@@ -40,18 +48,19 @@ import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity implements ICadeCommand {
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
+    private static final long SECONDS = 600;
     private String userId;
     private View loadingProgress ;
-
+    private Timer timer = new Timer();
     private MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
         getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
         String userId = prefs.getString(GlobalsettingsKeys.userId,"");
-        this.userId = "57712223e4b0d2effcb9e74f";//TODO Reasdasdmove this shit
+        this.userId = "57712223e4b0d2effcb9e74f";//TODO remove this shit
 
-      if(this.userId.equals(""))
+        if(this.userId.equals(""))
         {
 
             new AlertDialog.Builder(this)
@@ -70,30 +79,29 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
 
-        /*this.runOnUiThread(new Runnable() {
-            public void run() {
-                Timer timer = new Timer ();
-                TimerTask hourlyTask = new TimerTask() {
-                    @Override
-                    public void run () {
-                        getRecommendations(true);
-                    }
-                };
-                timer.schedule (hourlyTask, 0l, 1000*60*60);   // 1000*10*60 every 10 minut
-            }
-        });*/
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-
+        final Button button = (Button) findViewById(R.id.btn_reload);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                View noEvent = findViewById(R.id.noEvents);
+                View lwitem = findViewById(R.id.lwitem);
+                loadingProgress.setVisibility(View.VISIBLE);
+                lwitem.setVisibility(View.INVISIBLE);
+                noEvent.setVisibility(View.INVISIBLE);
+                getRecommendations(false);
+            }
+        });
         circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
         circleButton.setOnTouchListener(new MicrophoneTouchListener());
 
         backToPAButton = (BackToPAButton) findViewById(R.id.backControlBtn);
         backToPAButton.setOnTouchListener(new BackTouchListener());
+       // timer.schedule(new MyTimerTask(), 60 * 60, SECONDS); //Ask again after 600 seconds (10 minutes)
     }
     @Override
     public void performAction(String command, Map<String, String> map) {
@@ -171,7 +179,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
                             instance.runOnUiThread(new Runnable(){
                                 @Override
-                                                                                                                                                                                                                                                                                                                                                                 public void run() {
+                                public void run() {
                                     View noEvent = findViewById(R.id.noEvents);
                                     View lwitem = findViewById(R.id.lwitem);
                                     loadingProgress.setVisibility(View.INVISIBLE);
@@ -183,6 +191,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         if(isFriendsOnly)
                         {
                             showEventNotification();
+
                         }
                         ArrayAdapterItem adapter = null;
                         try
@@ -224,7 +233,13 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         instance.runOnUiThread(new Runnable(){
                             @Override
                             public void run() {
+
+                                View noEvent = findViewById(R.id.noEvents);
+                                View lwitem = findViewById(R.id.lwitem);
                                 loadingProgress.setVisibility(View.INVISIBLE);
+                                lwitem.setVisibility(View.VISIBLE);
+                                noEvent.setVisibility(View.INVISIBLE);
+                                getWindow().getDecorView().findViewById(android.R.id.content).invalidate();//Rebuild ui!
                             } });
                         Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
                     }
@@ -248,7 +263,18 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // hide the notification after its selected
         n.flags |= Notification.FLAG_AUTO_CANCEL;
-
         notificationManager.notify(0, n);
+    }
+    private class MyTimerTask extends TimerTask{
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i("quarterTask","GetRecommendationsForFriends");
+                    getRecommendations(true);
+                }
+            });
+        }
     }
 }

@@ -4,6 +4,9 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+<Button
+    android:layout_width="wrap_content" android:id="@+id/btn_reload"
+    android:layout_height="wrap_content" android:text="@string/reload" />
     <ProgressBar  android:layout_centerInParent = "true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -11,6 +14,7 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="50pt"
         android:id="@+id/lwitem"></ListView>
 
     <include layout="@layout/voice_btn_layout" android:visibility="visible" />

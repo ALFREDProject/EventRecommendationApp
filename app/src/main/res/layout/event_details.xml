@@ -25,20 +25,25 @@
                 android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
                 <TextView
                     style="@style/DetailsHeadding"
-                    android:id="@+id/txt_endTimeLabel" android:text="@string/endTimeLabel" android:layout_width="wrap_content"
+                    android:id="@+id/txt_endTimeLabel" android:text="@string/endTimeLabel"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:textSize="15dp" />
                 <TextView android:id="@+id/txt_endTime" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+                    android:layout_height="wrap_content" android:textSize="15dp"
+                    android:layout_marginLeft="10dp"/>
             </LinearLayout>
             <LinearLayout
-                android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                android:orientation="horizontal" android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
                 <TextView style="@style/DetailsHeadding"
                     android:id="@+id/txt_eventTitle" android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:textSize="15dp" />
                 <TextView android:id="@+id/txt_time" android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
+                    android:layout_height="wrap_content" android:textSize="15dp"
+                    android:layout_marginLeft="10dp"/>
             </LinearLayout>
-            <TextView android:id="@+id/txt_basedOn" android:layout_width="match_parent" android:layout_height="wrap_content"  android:textSize="15dp" />
+            <TextView android:id="@+id/txt_basedOn" android:layout_width="match_parent"
+                android:layout_height="wrap_content"  android:textSize="15dp" />
         </LinearLayout>
     </LinearLayout>
 

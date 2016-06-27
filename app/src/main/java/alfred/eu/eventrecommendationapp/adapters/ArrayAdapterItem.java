@@ -47,7 +47,7 @@ public class ArrayAdapterItem extends ArrayAdapter<EventRecommendationResponse>{
 
         TextView txt_time = (TextView) convertView.findViewById(R.id.txt_time);
         SimpleDateFormat sd =  new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        txt_time.setText("26.04.2016 13:37");//sd.format(objectItem.getEvent().getStart_date())
+        txt_time.setText(sd.format(objectItem.getEvent().getStart_date()));//
 
         String basedOn = generateBasedOnText(objectItem.getReasons());
         TextView txt_basedOn = (TextView) convertView.findViewById(R.id.txt_basedOn);

@@ -5,7 +5,6 @@
     <string name="endTimeLabel"><u>End: </u></string>
     <string name="locationLabel"><u>Location: </u></string>
     <string name="descriptionLabel"><u>Description: </u></string>
-    <string name="eventTitleLabel"><u>Eventtitle: </u></string>
+    <string name="eventTitleLabel"><u>Event title: </u></string>
     <string name="eventBasedOnLabel"><u>Based on: </u></string>
-
 </resources>

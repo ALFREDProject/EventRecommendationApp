@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">EventRecommendationApp</string>
-    <string name="action_settings">Settings</string>
-    <string name="startTimeLabel"><u>Start: </u></string>
-    <string name="endTimeLabel"><u>End: </u></string>
-    <string name="locationLabel"><u>Location: </u></string>
+    <string name="action_settings">Paramètres </string>
+    <string name="startTimeLabel"><u>Début: </u></string>
+    <string name="endTimeLabel"><u>Fin: </u></string>
+    <string name="locationLabel"><u>Lieu: </u></string>
     <string name="descriptionLabel"><u>Description: </u></string>
-    <string name="eventTitleLabel"><u>Event title: </u></string>
-    <string name="eventBasedOnLabel"><u>Based on: </u></string>
+    <string name="eventTitleLabel"><u>Titre de l'événement: </u></string>
+    <string name="eventBasedOnLabel"><u>Basé sur: </u></string>
 </resources>

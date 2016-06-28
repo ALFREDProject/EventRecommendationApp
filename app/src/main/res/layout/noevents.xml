@@ -5,11 +5,10 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin">
-    <LinearLayout
+    <LinearLayout android:paddingTop="50pt"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-      android:id="@+id/eins">
+        android:layout_height="wrap_content" android:id="@+id/eins">
         <TextView android:layout_width="match_parent" android:layout_height="match_parent"
             android:text="@string/noeventsHead" />
      <TextView android:layout_width="match_parent" android:layout_height="match_parent"

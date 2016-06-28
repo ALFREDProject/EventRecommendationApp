@@ -170,7 +170,11 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         });
                         builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
                         Gson gson = builder.create();
-                        EventRecommendationResponse[] r =gson.fromJson(s,EventRecommendationResponse[].class);
+                        EventRecommendationResponse[] r = null;
+                        if(s.equals(""))
+                            r = new EventRecommendationResponse[0];
+                        else
+                            r =gson.fromJson(s,EventRecommendationResponse[].class);
                         Log.i("fertig",r.length+"");
                         resp = new ArrayList<>(Arrays.asList(r));
                         if(resp.size()==0)

@@ -1,7 +1,5 @@
 package alfred.eu.eventrecommendationapp;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,7 +29,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import alfred.eu.eventrecommendationapp.actions.GetRecommendationsForUserAction;
 import alfred.eu.eventrecommendationapp.adapters.ArrayAdapterItem;
 import eu.alfred.api.personalization.model.eventrecommendation.EventRecommendationResponse;
 import eu.alfred.api.personalization.model.eventrecommendation.GlobalsettingsKeys;
@@ -42,6 +39,7 @@ import eu.alfred.ui.BackToPAButton;
 import eu.alfred.ui.CircleButton;
 
 public class MainActivity extends AppActivity implements ICadeCommand {
+    private int cade_SizeItems;
     private static final String GET_RECOMMENDATIONS_FOR_USER = "ShowEventRecommendationAction";
     private static final long MILLISECONDS = 6000;//TODO 600000;
     private String userId;
@@ -51,6 +49,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     private ArrayList<EventRecommendationResponse> resp;
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
+
         getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
         //String userId = prefs.getString(GlobalsettingsKeys.userId,"");
         this.userId  = prefs.getString(GlobalsettingsKeys.userId,"");
@@ -80,6 +79,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cade_SizeItems = -1;
         setContentView(R.layout.activity_main);
         final Button button = (Button) findViewById(R.id.btn_reload);
         button.setOnClickListener(new View.OnClickListener() {
@@ -104,11 +104,33 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
         //Add custom events here
         switch (command) {
-            case (GET_RECOMMENDATIONS_FOR_USER):
+            /*case (GET_RECOMMENDATIONS_FOR_USER):
                 GetRecommendationsForUserAction cta = new GetRecommendationsForUserAction(this, cade,eventrecommendationManager);
                 cta.performAction(command, map);
                 break;
+*/
+            case ("ShowEventRecommendationAction"):
 
+                try
+                {
+                    cade_SizeItems = Integer.parseInt(map.get("selected_event_list_size").replace("event_list_size_",""));
+                }
+                catch(Exception ysdlkjf)
+                {
+                    cade_SizeItems = -1;
+                }
+                getRecommendations(false);
+                cade.sendActionResult(true);
+                break;
+
+
+            case ("GiveEventX"):
+                if(resp.size()==0)
+                    getRecommendations(false);
+                ListView list = (ListView)instance.findViewById(R.id.lwitem);
+
+
+                break;
             default:
                 break;
         }
@@ -164,14 +186,6 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 return d;
                             }
                         });
-                        /*String input = "music, SporTs";
-                        String[] interests = input.split(",");
-                        for (int i = 0; i <  interests.length; i++)
-                        {
-                            interests[i] = interests[i].replace(" ","");
-                            interests[i]= interests[i].toLowerCase();
-                        }*/
-
                         builder.registerTypeAdapter(MainActivity.class, new CustomDeserializer());
                         Gson gson = builder.create();
                         EventRecommendationResponse[] r = null;
@@ -208,11 +222,17 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         ArrayAdapterItem adapter = null;
                         try
                         {
-                            EventRecommendationResponse[] array = new EventRecommendationResponse[resp.toArray().length];
+                            EventRecommendationResponse[] array;
+                            if(cade_SizeItems==-1)
+                                array = new EventRecommendationResponse[resp.toArray().length];
+                            else
+                                array = new EventRecommendationResponse[cade_SizeItems];
                             int i = 0;
                             for (Object o : resp.toArray()) {
                                 array[i] = (EventRecommendationResponse)o;
                                 i++;
+                                if(cade_SizeItems!=-1 && i == cade_SizeItems)
+                                    break;
                             }
                             Log.i("Done","i is "+ i);
                             adapter = new ArrayAdapterItem(instance, R.layout.list_view_row_item,array);
@@ -267,7 +287,8 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     }
 
     private void showEventNotification() {
-        Notification n  = new Notification.Builder(instance)
+        System.out.println("hello");
+       /* Notification n  = new Notification.Builder(instance)
                 .setContentTitle("One of your friend is participating an event")
                 .setContentText("New social event")
                 .setSmallIcon(R.drawable.event_ico)
@@ -275,18 +296,19 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // hide the notification after its selected
         n.flags |= Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(0, n);
+        notificationManager.notify(0, n);*/
     }
     private class MyTimerTask extends TimerTask{
         @Override
         public void run() {
-            runOnUiThread(new Runnable() {
+            System.out.println("hello");
+          /*  runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Log.i("quarterTask",new Date().toString()+" - GetRecommendationsForFriends");
                     getRecommendations(true);
                 }
-            });
+            });*/
         }
     }
 }

@@ -80,4 +80,7 @@
         <TextView android:id="@+id/txt_description" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:textSize="15dp" android:layout_marginLeft="10dp"/>
     </LinearLayout>
+
+    <include layout="@layout/voice_btn_layout" android:visibility="visible" />
+    <include layout="@layout/noevents" android:id="@+id/noEvents" android:visibility="invisible" />
 </LinearLayout>

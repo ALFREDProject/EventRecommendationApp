@@ -10,8 +10,8 @@ android {
         applicationId "alfred.eu.eventrecommendationapp"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 22
-        versionName "1.0.22"
+        versionCode 25
+        versionName "1.0.25"
     }
     buildTypes {
         release {
@@ -29,9 +29,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.sun.jersey:jersey-client:1.9.1'
     compile 'eu.alfred.personalassistant.sharedlibrary:PersonalAssistantShared-debug@aar'
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
-   // compile 'com.fasterxml.jackson.core:jackson-core:2.7.3'
-   // compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+    compile 'com.google.android.gms:play-services-appindexing:9.0.2'
 }
 
 repositories{

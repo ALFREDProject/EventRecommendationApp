@@ -3,9 +3,6 @@ package alfred.eu.eventrecommendationapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -25,9 +22,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,7 +59,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         //String userId = prefs.getString(GlobalsettingsKeys.userId,"");
         this.userId  = prefs.getString(GlobalsettingsKeys.userId,"");
         // this.userId = "57726a806f2bcd8b2abef5bb";//TODO remove this shit
-        this.userId = "57711ce93d107c060ba855b4";
+       // this.userId = "57711ce93d107c060ba855b4";
         //this.userId = "";
         this.appendLog("new intent - Got userid: "+this.userId);
         if(this.userId.equals(""))
@@ -247,9 +241,9 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         Log.i("fertig",r.length+"");
                         resp = new ArrayList<>(Arrays.asList(r));
                         GlobalData.getInstance().setResp(resp);
+                        instance.appendLog("getRecommendations: resp.size()="+resp.size());
                         if(resp.size()==0)
                         {
-                            instance.appendLog("getRecommendations: resp.size()="+resp.size());
                             if(!isFriendsOnly)
                             {
                                 loadingProgress = findViewById(R.id.loadingAnimation);
@@ -270,6 +264,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         }
                         if(isFriendsOnly)
                         {
+                            instance.appendLog("getRecommendations: isFriendsOnly="+isFriendsOnly);
                             showEventNotification();
                             return;
                         }
@@ -329,6 +324,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 noEvent.setVisibility(View.INVISIBLE);
                                 getWindow().getDecorView().findViewById(android.R.id.content).invalidate();//Rebuild ui!
                             } });
+                        instance.appendLog("getRecommendations: Response done - should be visible now");
                         Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
                         if(isCadeDetails)
                         {

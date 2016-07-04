@@ -44,6 +44,7 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
     private String eventTitle;
     private String eventStartDate;
     private String eventEndDate;
+
     private String eventLocale;
     private String eventDescription;
     private EnumSet<RecommendationReason> reasons;

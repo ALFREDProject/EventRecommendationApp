@@ -47,6 +47,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     private Timer timer = new Timer();
     private MainActivity instance;
     private ArrayList<EventRecommendationResponse> resp;
+    private int cadeEventNumber;//If we get #1 - it is 0 in the list
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
 
@@ -69,7 +70,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-        getRecommendations(false);
+        getRecommendations(false,false);
         instance = this;
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
@@ -89,7 +90,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                 loadingProgress.setVisibility(View.VISIBLE);
                 lwitem.setVisibility(View.INVISIBLE);
                 noEvent.setVisibility(View.INVISIBLE);
-                getRecommendations(false);
+                getRecommendations(false,false);
             }
         });
         circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
@@ -101,7 +102,8 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     }
     @Override
     public void performAction(String command, Map<String, String> map) {
-
+        int asdasd = 5;
+        asdasd+=6;
         //Add custom events here
         switch (command) {
             /*case (GET_RECOMMENDATIONS_FOR_USER):
@@ -109,6 +111,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                 cta.performAction(command, map);
                 break;
 */
+
             case ("ShowEventRecommendationAction"):
 
                 try
@@ -119,16 +122,41 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                 {
                     cade_SizeItems = -1;
                 }
-                getRecommendations(false);
+                getRecommendations(false,false);
                 cade.sendActionResult(true);
                 break;
+            case ("ShowEventDetailsAction"):
+                String sNumber = map.get("selected_event_number").replace("event_number","").replace("event_number_","");
+
+                cadeEventNumber = Integer.parseInt(sNumber.replace("_",""));
+
+                resp = GlobalData.getInstance().getResp();
+                EventRecommendationResponse rs = resp.get(cadeEventNumber-1);
+                Intent i = new Intent(instance, EventDetailsActivity.class);
+                DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                i.putExtra("userId",instance.userId);
+                i.putExtra("eventTitle",rs.getEvent().getTitle());
+                i.putExtra("eventStartDate",format.format(rs.getEvent().getStart_date()));
+                i.putExtra("eventEndDate",format.format(rs.getEvent().getEnd_date()));
+                i.putExtra("eventLocale",rs.getEvent().getVenue());
+                i.putExtra("eventDescription",rs.getEvent().getDescription());
+                i.putExtra("eventId",rs.getEvent().getEventID());
+                i.putExtra("reasons",rs.getReasons());
+                i.putExtra("weight",rs.getWeight());
+                instance.startActivity(i);
 
 
-            case ("GiveEventX"):
+                break;
+
+            case ("GoToEventAction"):
                 if(resp.size()==0)
-                    getRecommendations(false);
-                ListView list = (ListView)instance.findViewById(R.id.lwitem);
+                    System.out.println("aksjhda");
 
+                break;
+
+            case ("DontGoToEventAction"):
+                if(resp.size()==0)
+                    System.out.println("aslkdjalskjd");
 
                 break;
             default:
@@ -157,7 +185,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         super.onStop();
     }
 
-    public void getRecommendations(final boolean isFriendsOnly) {
+    public void getRecommendations(final boolean isFriendsOnly,final boolean isCadeDetails) {
         eventrecommendationManager.getRecommendations(userId,isFriendsOnly, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -195,6 +223,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                             r =gson.fromJson(s,EventRecommendationResponse[].class);
                         Log.i("fertig",r.length+"");
                         resp = new ArrayList<>(Arrays.asList(r));
+                        GlobalData.getInstance().setResp(resp);
                         if(resp.size()==0)
                         {
                             if(!isFriendsOnly)
@@ -274,6 +303,25 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                 getWindow().getDecorView().findViewById(android.R.id.content).invalidate();//Rebuild ui!
                             } });
                         Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
+                        if(isCadeDetails)
+                        {
+
+                            resp = GlobalData.getInstance().getResp();
+                            EventRecommendationResponse rs = resp.get(cadeEventNumber-1);
+                            Intent i = new Intent(instance, EventDetailsActivity.class);
+                            DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+                            i.putExtra("userId",instance.userId);
+                            i.putExtra("eventTitle",rs.getEvent().getTitle());
+                            i.putExtra("eventStartDate",format.format(rs.getEvent().getStart_date()));
+                            i.putExtra("eventEndDate",format.format(rs.getEvent().getEnd_date()));
+                            i.putExtra("eventLocale",rs.getEvent().getVenue());
+                            i.putExtra("eventDescription",rs.getEvent().getDescription());
+                            i.putExtra("eventId",rs.getEvent().getEventID());
+                            i.putExtra("reasons",rs.getReasons());
+                            i.putExtra("weight",rs.getWeight());
+                            instance.startActivity(i);
+
+                        }
                     }
                     catch(Exception e)
                     {

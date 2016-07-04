@@ -1,9 +1,13 @@
 package alfred.eu.eventrecommendationapp;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +23,11 @@ import com.google.gson.JsonElement;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -50,12 +60,14 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     private int cadeEventNumber;//If we get #1 - it is 0 in the list
     @Override
     public void onNewIntent(Intent intent) { super.onNewIntent(intent);
-
+        this.appendLog("new intent");
         getSharedPreferences("global_settings", MODE_ENABLE_WRITE_AHEAD_LOGGING);
         //String userId = prefs.getString(GlobalsettingsKeys.userId,"");
         this.userId  = prefs.getString(GlobalsettingsKeys.userId,"");
         // this.userId = "57726a806f2bcd8b2abef5bb";//TODO remove this shit
-
+        this.userId = "57711ce93d107c060ba855b4";
+        //this.userId = "";
+        this.appendLog("new intent - Got userid: "+this.userId);
         if(this.userId.equals(""))
         {
 
@@ -79,9 +91,12 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        instance.appendLog("onCreate");
         super.onCreate(savedInstanceState);
         cade_SizeItems = -1;
         setContentView(R.layout.activity_main);
+
+        this.appendLog("activity_main loaded");
         final Button button = (Button) findViewById(R.id.btn_reload);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -98,12 +113,14 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
         backToPAButton = (BackToPAButton) findViewById(R.id.backControlBtn);
         backToPAButton.setOnTouchListener(new BackTouchListener());
+        instance.appendLog(" timer.schedule");
         timer.schedule(new MyTimerTask(), 60 * 60, MILLISECONDS); //Ask again after 600000  milliseconds (10 minutes)
+        instance.appendLog(" timer.schedule done");
     }
     @Override
     public void performAction(String command, Map<String, String> map) {
-        int asdasd = 5;
-        asdasd+=6;
+
+        instance.appendLog("Cade: performAction!!!");
         //Add custom events here
         switch (command) {
             /*case (GET_RECOMMENDATIONS_FOR_USER):
@@ -116,13 +133,18 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
                 try
                 {
+                    instance.appendLog("map.get(\"selected_event_list_size\")"+map.get("selected_event_list_size"));
                     cade_SizeItems = Integer.parseInt(map.get("selected_event_list_size").replace("event_list_size_",""));
+                    instance.appendLog("cade_SizeItems"+cade_SizeItems);
                 }
                 catch(Exception ysdlkjf)
                 {
+                    instance.appendLog("CADE: Exception"+ysdlkjf.toString());
                     cade_SizeItems = -1;
+                    instance.appendLog("cade_SizeItems"+cade_SizeItems);
                 }
                 getRecommendations(false,false);
+                instance.appendLog("cade.sendActionResult");
                 cade.sendActionResult(true);
                 break;
             case ("ShowEventDetailsAction"):
@@ -186,6 +208,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     }
 
     public void getRecommendations(final boolean isFriendsOnly,final boolean isCadeDetails) {
+        this.appendLog("getRecommendations - download  ");
         eventrecommendationManager.getRecommendations(userId,isFriendsOnly, new PersonalizationResponse() {
             @Override
             public void OnSuccess(JSONObject jsonObject) {
@@ -199,7 +222,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
             public void OnSuccess(Object o) {}
             @Override
             public void OnSuccess(String s) {
-
+                instance.appendLog("getRecommendations: OnSuccess");
                 if(s!=null)
                 {
                     try
@@ -268,6 +291,8 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         }
                         catch (Exception except)
                         {
+                            instance.appendLog("getRecommendations: error!!!");
+                            instance.appendLog(except.toString());
                             except.printStackTrace();
                         }
                         ListView list = (ListView)instance.findViewById(R.id.lwitem);
@@ -325,12 +350,17 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     }
                     catch(Exception e)
                     {
+                        instance.appendLog("getRecommendations: error!!!");
+                        instance.appendLog(e.toString());
                         e.printStackTrace();
                     }
                 }
             }
             @Override
-            public void OnError(Exception e) {}
+            public void OnError(Exception e) {
+                instance.appendLog("getRecommendations: onError!!!");
+                instance.appendLog(e.toString());
+            }
         });
     }
 
@@ -349,7 +379,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     private class MyTimerTask extends TimerTask{
         @Override
         public void run() {
-            System.out.println("hello");
+            //System.out.println("hello");
           /*  runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -357,6 +387,23 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     getRecommendations(true);
                 }
             });*/
+        }
+    }
+    public void appendLog(String text)
+    {
+        String LOG_ROOT_DIR = Environment.getExternalStorageDirectory().toString()+ "/alfred-logs/";
+
+        File logFile = new File(LOG_ROOT_DIR+"alfred_log.csv");
+        try {
+            FileOutputStream out = new FileOutputStream(logFile);
+            String content = text;
+            byte[] contentInBytes = content.getBytes();
+            out.write(contentInBytes);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

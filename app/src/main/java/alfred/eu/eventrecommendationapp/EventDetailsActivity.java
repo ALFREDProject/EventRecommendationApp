@@ -174,21 +174,15 @@ public class EventDetailsActivity extends AppActivity implements GoogleApiClient
     }
     private void addToCalendar(ContentResolver cr, ContentValues values)
     {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+      /*  if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+
             return;
         }
         Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
 
 // get the event ID that is the last element in the Uri
         long eventID = Long.parseLong(uri.getLastPathSegment());
-        System.out.println(eventID);
+        System.out.println(eventID);*/
     }
 
     @Override

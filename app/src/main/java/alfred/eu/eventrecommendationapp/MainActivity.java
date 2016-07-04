@@ -91,7 +91,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        instance.appendLog("onCreate");
+        this.appendLog("onCreate");
         super.onCreate(savedInstanceState);
         cade_SizeItems = -1;
         setContentView(R.layout.activity_main);
@@ -113,9 +113,9 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
         backToPAButton = (BackToPAButton) findViewById(R.id.backControlBtn);
         backToPAButton.setOnTouchListener(new BackTouchListener());
-        instance.appendLog(" timer.schedule");
+        this.appendLog(" timer.schedule");
         timer.schedule(new MyTimerTask(), 60 * 60, MILLISECONDS); //Ask again after 600000  milliseconds (10 minutes)
-        instance.appendLog(" timer.schedule done");
+        this.appendLog(" timer.schedule done");
     }
     @Override
     public void performAction(String command, Map<String, String> map) {
@@ -249,6 +249,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                         GlobalData.getInstance().setResp(resp);
                         if(resp.size()==0)
                         {
+                            instance.appendLog("getRecommendations: resp.size()="+resp.size());
                             if(!isFriendsOnly)
                             {
                                 loadingProgress = findViewById(R.id.loadingAnimation);
@@ -261,6 +262,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                                         lwitem.setVisibility(View.INVISIBLE);
                                         noEvent.setVisibility(View.VISIBLE);
                                     } });
+
                                 return;
                             }
                             else
@@ -393,15 +395,19 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     {
         String LOG_ROOT_DIR = Environment.getExternalStorageDirectory().toString()+ "/alfred-logs/";
 
-        File logFile = new File(LOG_ROOT_DIR+"alfred_log.csv");
+        File logFile = new File(LOG_ROOT_DIR+"recommendation.csv");
         try {
-            FileOutputStream out = new FileOutputStream(logFile);
+           /* FileOutputStream out = new FileOutputStream(logFile);
             String content = text;
             byte[] contentInBytes = content.getBytes();
             out.write(contentInBytes);
             out.flush();
-            out.close();
+            out.close();*/
 
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

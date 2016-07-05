@@ -114,7 +114,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     @Override
     public void performAction(String command, Map<String, String> map) {
 
-        instance.appendLog("Cade: performAction!!!");
+
         //Add custom events here
         switch (command) {
             /*case (GET_RECOMMENDATIONS_FOR_USER):
@@ -127,18 +127,19 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
                 try
                 {
-                    instance.appendLog("map.get(\"selected_event_list_size\")"+map.get("selected_event_list_size"));
+                   /* instance.appendLog("Cade: performAction!!!");
+                    instance.appendLog("map.get(\"selected_event_list_size\")"+map.get("selected_event_list_size"));*/
                     cade_SizeItems = Integer.parseInt(map.get("selected_event_list_size").replace("event_list_size_",""));
-                    instance.appendLog("cade_SizeItems"+cade_SizeItems);
+                //    instance.appendLog("cade_SizeItems"+cade_SizeItems);
                 }
                 catch(Exception ysdlkjf)
                 {
-                    instance.appendLog("CADE: Exception"+ysdlkjf.toString());
+                 //   instance.appendLog("CADE: Exception"+ysdlkjf.toString());
                     cade_SizeItems = -1;
-                    instance.appendLog("cade_SizeItems"+cade_SizeItems);
+                  //  instance.appendLog("cade_SizeItems"+cade_SizeItems);
                 }
                 getRecommendations(false,false);
-                instance.appendLog("cade.sendActionResult");
+              //  instance.appendLog("cade.sendActionResult");
                 cade.sendActionResult(true);
                 break;
             case ("ShowEventDetailsAction"):

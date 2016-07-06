@@ -76,7 +76,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-        getRecommendations(false,false);
+        getRecommendations(false,false,false);
         instance = this;
         loadingProgress = findViewById(R.id.loadingAnimation);
         loadingProgress.setVisibility(View.VISIBLE);
@@ -99,7 +99,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                 loadingProgress.setVisibility(View.VISIBLE);
                 lwitem.setVisibility(View.INVISIBLE);
                 noEvent.setVisibility(View.INVISIBLE);
-                getRecommendations(false,false);
+                getRecommendations(false,false,false);
             }
         });
         circleButton = (CircleButton) findViewById(R.id.voiceControlBtn);
@@ -114,6 +114,8 @@ public class MainActivity extends AppActivity implements ICadeCommand {
     @Override
     public void performAction(String command, Map<String, String> map) {
 
+        int asdasdasd = 0;
+        asdasdasd+=5;
 
         //Add custom events here
         switch (command) {
@@ -145,9 +147,8 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                     cade_SizeItems = -1;
                   //  instance.appendLog("cade_SizeItems"+cade_SizeItems);
                 }*/
-                getRecommendations(false,false);
+                getRecommendations(false,false,true);
               //  instance.appendLog("cade.sendActionResult");
-                cade.sendActionResult(true);
                 break;
             case ("ShowEventDetailsAction"):
                 String sNumber = map.get("selected_event_number").replace("event_number","").replace("event_number_","");
@@ -209,7 +210,7 @@ public class MainActivity extends AppActivity implements ICadeCommand {
         super.onStop();
     }
 
-    public void getRecommendations(final boolean isFriendsOnly,final boolean isCadeDetails) {
+    public void getRecommendations(final boolean isFriendsOnly, final boolean isCadeDetails, final boolean isCadeCommand) {
         this.appendLog("getRecommendations - download  ");
         eventrecommendationManager.getRecommendations(userId,isFriendsOnly, new PersonalizationResponse() {
             @Override
@@ -248,6 +249,9 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                             r =gson.fromJson(s,EventRecommendationResponse[].class);
                         Log.i("fertig",r.length+"");
                         resp = new ArrayList<>(Arrays.asList(r));
+
+                        cade_SizeItems = resp.size();
+
                         GlobalData.getInstance().setResp(resp);
                         instance.appendLog("getRecommendations: resp.size()="+resp.size());
                         if(resp.size()==0)
@@ -334,6 +338,9 @@ public class MainActivity extends AppActivity implements ICadeCommand {
                             } });
                         instance.appendLog("getRecommendations: Response done - should be visible now");
                         Log.i("fertig","Response gebaut -- sollte jetzt was sichtbar sein...");
+                        if(isCadeCommand)
+                            cade.sendActionResult(true);
+
                         if(isCadeDetails)
                         {
 

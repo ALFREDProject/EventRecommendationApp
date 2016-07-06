@@ -42,6 +42,8 @@ public class ArrayAdapterItem extends ArrayAdapter<EventRecommendationResponse>{
         }
         EventRecommendationResponse objectItem = data[position];
 
+if(objectItem==null)
+    return convertView;
         TextView txt_title = (TextView) convertView.findViewById(R.id.txt_eventTitle);
         txt_title.setText(objectItem.getEvent().getTitle());
 

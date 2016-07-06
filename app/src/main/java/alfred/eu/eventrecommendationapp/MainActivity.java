@@ -125,19 +125,26 @@ public class MainActivity extends AppActivity implements ICadeCommand {
 
             case ("ShowEventRecommendationAction"):
 
-                try
-                {
+                //-------------------------------------------------- REMOVED CADE COMMANDS IN ORDER TO GET OTHER COMMANDS RUNNING AGAIN --------------------------------------------------
+                cade_SizeItems = 10;//
+                //-------------------------------------------------- REMOVED CADE COMMANDS IN ORDER TO GET OTHER COMMANDS RUNNING AGAIN --------------------------------------------------
+
+/*                try
+                {*/
                    /* instance.appendLog("Cade: performAction!!!");
                     instance.appendLog("map.get(\"selected_event_list_size\")"+map.get("selected_event_list_size"));*/
-                    cade_SizeItems = Integer.parseInt(map.get("selected_event_list_size").replace("event_list_size_",""));
-                //    instance.appendLog("cade_SizeItems"+cade_SizeItems);
-                }
+                    //cade_SizeItems = Integer.parseInt(map.get("selected_event_list_size").replace("event_list_size_",""));
+
+
+
+                    //    instance.appendLog("cade_SizeItems"+cade_SizeItems);
+                /*}
                 catch(Exception ysdlkjf)
                 {
                  //   instance.appendLog("CADE: Exception"+ysdlkjf.toString());
                     cade_SizeItems = -1;
                   //  instance.appendLog("cade_SizeItems"+cade_SizeItems);
-                }
+                }*/
                 getRecommendations(false,false);
               //  instance.appendLog("cade.sendActionResult");
                 cade.sendActionResult(true);

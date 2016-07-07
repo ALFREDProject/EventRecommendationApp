@@ -10,8 +10,8 @@ android {
         applicationId "alfred.eu.eventrecommendationapp"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 32
-        versionName "1.0.32"
+        versionCode 33
+        versionName "1.0.33"
     }
     buildTypes {
         release {

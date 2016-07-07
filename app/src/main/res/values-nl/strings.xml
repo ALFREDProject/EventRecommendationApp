@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">EventRecommendationApp</string>
-    <string name="action_settings">Settings</string>
-    <string name="startTimeLabel"><u>Start: </u></string>
-    <string name="endTimeLabel"><u>End: </u></string>
-    <string name="locationLabel"><u>Location: </u></string>
-    <string name="descriptionLabel"><u>Description: </u></string>
+    <string name="action_settings">Snelverhardend</string>
+    <string name="startTimeLabel"><u>Starten: </u></string>
+    <string name="endTimeLabel"><u>Eind: </u></string>
+    <string name="locationLabel"><u>Ligging: </u></string>
+    <string name="descriptionLabel"><u>Beschrijving: </u></string>
     <string name="eventTitleLabel"><u>Eventtitle: </u></string>
-    <string name="eventBasedOnLabel"><u>Based on: </u></string>
-    <string name="noeventsHead"><u>Sorry we have no events for you. This could have different causes:</u></string>
-    <string name="noeventsBody">Probably you haven\'t filled your user profile with information yet. Event recommendations are based on various entries like your place of residence, interests, friends, and so on.</string>
+    <string name="eventBasedOnLabel"><u>Gebaseerd op: </u></string>
+    <string name="noeventsHead"><u>Helaas hebben we geen evenementen voor u. Dit kan verschillende oorzaken hebben:</u></string>
+    <string name="noeventsBody">
+Waarschijnlijk heb je niet uw gebruikersprofiel ingediend bij informatie ye. aanbevelingen Event zijn gebaseerd op verschillende data, zoals uw woonplaats, interesses, vrienden, en ga zo maar door.</string>
     <string name="menu_refresh">Reload</string>
     <string name="reload">Reload</string>
 </resources>

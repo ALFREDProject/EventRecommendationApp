@@ -1,12 +1,14 @@
  <resources>
-     <!--   <string name="app_name">EventRecommendationApp</string>
+      <string name="app_name">EventRecommendationApp</string>
         <string name="action_settings">Paramètres </string>
         <string name="startTimeLabel"><u>Début: </u></string>
         <string name="endTimeLabel"><u>Fin: </u></string>
         <string name="locationLabel"><u>Lieu: </u></string>
         <string name="descriptionLabel"><u>Description: </u></string>
-        <string name="eventTitleLabel"><u>Titre de l'événement: </u></string>
+        <string name="eventTitleLabel"><u>Titre de l\'événement: </u></string>
         <string name="eventBasedOnLabel"><u>Basé sur: </u></string>
-        <string name="noeventsHead">Désolé, nous n'avons aucun événement pour vous. Cela est probablement dû à plusieurs raisons.</string>
-        <string name="noeventsBody">Vous n'avez probablement pas encore rempli votre profil d'utilisateur avec des informations. Les recommandations des événements sont basés sur diverses entrées comme votre lieu de résidence, vos intérêts, vos amis, et ainsi de suite.</string> -->
+        <string name="noeventsHead">Désolé, nous n\'avons aucun événement pour vous. Cela est probablement dû à plusieurs raisons.</string>
+        <string name="noeventsBody">Vous n\'avez probablement pas encore rempli votre profil d\'utilisateur avec des informations. Les recommandations des événements sont basés sur diverses entrées comme votre lieu de résidence, vos intérêts, vos amis, et ainsi de suite.</string>
+   <string name="menu_refresh">Charger </string>
+   <string name="reload">Charger </string>
 </resources>

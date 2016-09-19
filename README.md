@@ -18,11 +18,13 @@ Once all the steps are configured it should be ok to start creating an Android a
 ### Add library & gradle
 
 [Personal Assistent App](https://github.com/ALFREDProject/PersonalAssistentApp/)
+
 [Personal Assistent Commons](https://github.com/ALFREDProject/PersonalAssistentCommons/)
 
 ### Register CADE event listeners
 
 [Personal Assistent App](https://github.com/ALFREDProject/PersonalAssistentApp/)
+
 [Personal Assistent Commons](https://github.com/ALFREDProject/PersonalAssistentCommons/)
 
 ### Example applications
